@@ -22,8 +22,8 @@ static void adc_task(int dummy)
     /* Initialise the SAADC: 10 bit resolution,
        compare 1/4 of the input with 1/4 of Vdd 
        with acquisition window of 10 microsec. */
-    ADC.CHAN[0].CONFIG = FIELD(ADC_CONFIG_GAIN, ADC_GAIN_1_4)
-        | FIELD(ADC_CONFIG_REFSEL, ADC_REFSEL_VDD_1_4)
+    ADC.CHAN[0].CONFIG = FIELD(ADC_CONFIG_GAIN, ADC_GAIN_1_6)
+        | FIELD(ADC_CONFIG_REFSEL, ADC_REFSEL_Internal)
         | FIELD(ADC_CONFIG_TACQ, ADC_TACQ_10us);
     ADC.RESOLUTION = ADC_RESOLUTION_10bit;
 #endif
@@ -95,6 +95,7 @@ int adc_reading(int pin)
         panic("Can't use pin %d for ADC", pin);
 
     m.int1 = chan;
+//    m.int1 = 8; //need to look at docs again to see if this is VDD
     sendrec(ADC_TASK, REQUEST, &m);
     return m.int1;
 }
