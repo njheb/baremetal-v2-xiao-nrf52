@@ -8,7 +8,7 @@
 
 #include "microbian.h"
 #include "hardware.h"
-#undef WITHINTS
+
 static int ADC_TASK;            /* PID of driver process */
 
 /* adc_task -- device driver */
@@ -26,31 +26,16 @@ static void adc_task(int dummy)
         | FIELD(ADC_CONFIG_REFSEL, ADC_REFSEL_VDD_1_4)
         | FIELD(ADC_CONFIG_TACQ, ADC_TACQ_10us);
     ADC.RESOLUTION = ADC_RESOLUTION_10bit;
-#ifdef WITHINTS
-    ADC.INTEN = BIT(ADC_INT_END) | BIT(ADC_INT_CALDONE);
-#endif
 #endif
 
-#ifdef WITHINTS
-    connect(ADC_IRQ);
-    enable_irq(ADC_IRQ);
-#endif    
 
 #ifdef UBIT_V2
     /* Run a calibration cycle to set the zero point. */
     ADC.ENABLE = 1;
     ADC.CALIBRATE = 1;
-#ifdef WITHINTS
-    receive(INTERRUPT, NULL);
-#else
     while (!ADC.CALDONE) {};
-#endif
     assert(ADC.CALDONE);
     ADC.CALDONE = 0;
-#ifdef WITHINTS
-    clear_pending(ADC_IRQ);
-    enable_irq(ADC_IRQ);
-#endif
     ADC.ENABLE = 0;
 #endif
 
@@ -68,24 +53,16 @@ static void adc_task(int dummy)
         ADC.RESULT.MAXCNT = 1;
         ADC.START = 1;
         ADC.SAMPLE = 1;
-#ifdef WITHINTS
-        receive(INTERRUPT, NULL);
-#else
         while (!ADC.END) {};
-#endif
         assert(ADC.END);
         assert(ADC.RESULT.AMOUNT == 1);
         ADC.END = 0;
         ADC.ENABLE = 0;
-        
+
         /* Result can still be slightly negative even after calibration */
         if (result < 0) result = 0;
-#endif        
-        
-#ifdef WITHINTS
-        clear_pending(ADC_IRQ);
-        enable_irq(ADC_IRQ);
 #endif
+
 
         /* Reply to the client */
         m.int1 = result;
