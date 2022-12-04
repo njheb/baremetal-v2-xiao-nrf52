@@ -1,11 +1,36 @@
-/* common/nRF52833.ld */
+/* common/nRF52833.ld */  /*for nRF52840 XAIO*/
 /* Copyright (c) 2018-20 J. M. Spivey */
+/*
+nrf52833  nrf52840
+512kb     1024kb        flash
+128kb     256kb         ram
+
+following xaio nrf52 linker numbers
+
+FLASH   (rx)  : ORIGIN = 0x27000,      LENGTH = 0xed000 - 0x27000 
+RAM (rwx) :  ORIGIN = 0x20006000, LENGTH = 0x20040000 - 0x20006000
+equivalent to
+RAM (rwx) :  ORIGIN = 0x20006000, LENGTH = 232K
+take off 4K for CODERAM
+RAM (rwx) :     ORIGIN = 0x20006000, LENGTH = 228K
+CODERAM (rwx) : ORIGIN = 0x00800000+228K, LENGTH = 4K
+ 
+*/
+
+
 
 MEMORY {
-    FLASH   (rx)  : ORIGIN = 0x00000000,      LENGTH = 512K
-    RAM     (rwx) : ORIGIN = 0x20000000,      LENGTH = 124K
-    CODERAM (rwx) : ORIGIN = 0x00800000+124K, LENGTH = 4K
+/*    FLASH   (rx)  : ORIGIN = 0x00000000,      LENGTH = 512K */
+/*    RAM     (rwx) : ORIGIN = 0x20000000,      LENGTH = 124K */
+
+  FLASH   (rx)  : ORIGIN = 0x27000,         LENGTH = 0xed000 - 0x27000 
+  RAM     (rwx) : ORIGIN = 0x20006000,      LENGTH = 228K
+  CODERAM (rwx) : ORIGIN = 0x00800000+228K, LENGTH = 4K
 }
+
+/*
+------>>>> need to check on RAM origin of 0x20006000
+ */
 
 OUTPUT_FORMAT ("elf32-littlearm")
 
@@ -29,8 +54,8 @@ SECTIONS {
         PROVIDE(power_clock_handler = default_handler);
         PROVIDE(radio_handler = default_handler);
         PROVIDE(uart0_handler = default_handler);
-        PROVIDE(i2c0_handler = default_handler);
-        PROVIDE(i2c1_handler = default_handler);
+        PROVIDE(i2c0_handler = default_handler);  /*spim0 twi0*/
+        PROVIDE(i2c1_handler = default_handler);  /*spim1 twi1*/
         PROVIDE(nfc_handler = default_handler);
         PROVIDE(gpiote_handler = default_handler);
         PROVIDE(adc_handler = default_handler);
@@ -59,14 +84,19 @@ SECTIONS {
         PROVIDE(mwu_handler = default_handler);
         PROVIDE(pwm1_handler = default_handler);
         PROVIDE(pwm2_handler = default_handler);
-        PROVIDE(spi0_handler = default_handler);
+        PROVIDE(spi0_handler = default_handler); /*SPIM2 SPI2 on gcc_startup_nrf52840.s*/
         PROVIDE(rtc2_handler = default_handler);
         PROVIDE(i2s_handler = default_handler);
         PROVIDE(fpu_handler = default_handler);
         PROVIDE(usbd_handler = default_handler);
         PROVIDE(uart1_handler = default_handler);
-        PROVIDE(pwm3_handler = default_handler);
-        PROVIDE(spi1_handler = default_handler);
+/*QSPI*/
+/*CRYPTOCELL*/
+        PROVIDE(pwm3_handler = default_handler);  /*PWM3*/
+        PROVIDE(spi1_handler = default_handler);  /*?SPIM3*/
+
+
+
     } > FLASH
 
     .xram : AT (LOADADDR(.text) + SIZEOF(.text)) {

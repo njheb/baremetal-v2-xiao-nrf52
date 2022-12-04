@@ -1,8 +1,18 @@
+//njh2022dec04 starting mods for XAIO nrf52840
 /* ubit-v2/hardware.h */
 /* Copyright (c) 2018-20 J. M. Spivey */
 
 #define UBIT 1
 #define UBIT_V2 1
+
+#define XAIO_NRF52840
+#undef  XAIO_NRF52840_SENSE //define for extra peripherals
+
+#undef  XAIO_NRF52840_EXTERNAL_I2C //define to enable
+#undef  XAIO_NRF52840_SERIAL
+#undef  XAIO_NRF52840_SPI
+
+#define  XAIO_EXTENSION_BOARD //define this and switch on all 3 above (currently not spi)
 
 /* Hardware register definitions for nRF52833 */
 
@@ -39,77 +49,194 @@ argument to be a macro that expands the a 'position, width' pair. */
 #define PORT(x) ((x)>>5)
 #define PIN(x) ((x)&0x1f)
 
-#define PAD14 DEVPIN(0, 1)
+
+/*add references for extension board*/
+//D0 on grove J5
+//D1=button
+//D2=SD_CS
+//D3=buzzer  see also jumper J2 to deselect
+
+//D6 on grove J6 TX
+//D7 on grove J6 RX
+
+#ifdef XAIO_EXTENSION_BOARD
+#define PAD0   DEVPIN(0, 2)
+#define J5_D0  DEVPIN(0, 2)
+#define BUTTON_D1  DEVPIN(0, 3)
+#define SD_CSN_D2  DEVPIN(0, 28)
+#define BUZZER_D3  DEVPIN(0, 29)
+#define XAIO_NRF52840_EXTERNAL_I2C /*enable defines below*/
+#define XAIO_NRF52840_SERIAL
+//#define XAIO_NRF52840_SPI //fixme
+#else
 #define PAD0  DEVPIN(0, 2)
 #define PAD1  DEVPIN(0, 3)
-#define PAD2  DEVPIN(0, 4)
-#define USB_TX DEVPIN(0, 6)
-#define I2C0_SCL DEVPIN(0, 8)
-#define PAD9  DEVPIN(0, 9)
-#define PAD8  DEVPIN(0, 10)
-#define PAD7  DEVPIN(0, 11)
-#define   COL2 PAD7
-#define PAD12 DEVPIN(0, 12)
-#define PAD15 DEVPIN(0, 13)
-#define PAD5  DEVPIN(0, 14)
-#define   BUTTON_A PAD5
-#define ROW3 DEVPIN(0, 15)
-#define I2C0_SDA DEVPIN(0, 16)
-#define PAD13 DEVPIN(0, 17)
-#define ROW5 DEVPIN(0, 19)
-#define ROW1 DEVPIN(0, 21)
-#define ROW2 DEVPIN(0, 22)
-#define PAD11 DEVPIN(0, 23)
-#define   BUTTON_B PAD11
-#define ROW4 DEVPIN(0, 24)
-#define PAD19 DEVPIN(0, 26)
-#define   I2C1_SCL PAD19
-#define PAD4  DEVPIN(0, 28)
-#define   COL1 PAD4
-#define PAD10 DEVPIN(0, 30)
-#define   COL5 PAD10
-#define PAD3  DEVPIN(0, 31)
-#define   COL3 PAD3
+#define PAD2  DEVPIN(0, 28)
+#define PAD3  DEVPIN(0, 29)
+#endif
+//sort out which is internal and external
+//I2C0_SCL goes to OLED for example so EXTERNAL
+//I2C0_SDA
+//I2C1_SCL try making this LSM6DS3TR, will be complicated by power and interrupt
+//I2C1_SDA "
 
-#define PAD20 DEVPIN(1, 0)
-#define   I2C1_SDA PAD20
-#define PAD16 DEVPIN(1, 2)
-#define PAD6  DEVPIN(1, 5)
-#define   COL4 PAD6
-#define USB_RX DEVPIN(1, 8)
+/*Broken out pins*/
+#ifdef XAIO_NRF52840_EXTERNAL_I2C
+#define I2C0_SDA   DEVPIN(0, 4)
+#define I2C0_SCL   DEVPIN(0, 5)
+#else
+#define PAD4  DEVPIN(0, 4)
+#define PAD5  DEVPIN(0, 5)
+#endif
+//USB_TX USB_RX now are poor names on xiao
+#ifdef XAIO_NRF52840_SERIAL
+#define USB_TX DEVPIN(1, 11)
+#define USB_RX DEVPIN(1, 12)
+#else
+#define PAD6  USB_TX
+#define PAD7  USB_RX
+#endif
 
+#ifdef XAIO_NRF52840_SPI
+/*use SPIM2 for SPI'0' following pattern adopted for uBit*/
+#error "not implemented yet, comment me out and carry on without SPIM2"
+//#define SPI0_SCK PAD8
+//#define SPI0_MISO PAD9
+//#define SPI0_MOSI PAD10
+#else
+#define PAD8  DEVPIN(1, 13)
+#define PAD9  DEVPIN(1, 14)
+#define PAD10 DEVPIN(1, 15)
+#endif
+
+
+#define PWR_LED   DEVPIN(1, 6)
+
+/*Neopixel, set pin low to turn on*/
+#define LED_RED   DEVPIN(0,26)
+#define LED_GREEN DEVPIN(0,30)
+#define LED_BLUE  DEVPIN(0, 6)
+
+#define READ_BAT  DEVPIN(0,14)
+
+#ifdef XAIO_NRF52840_SENSE
+/*LSM6DS3TR IMU*/
+#define 6D_PWR     DEVPIN(1, 8)
+#define 6D_I2C_SDA DEVPIN(0, 7)
+#define 6D_I2C_SCL DEVPIN(0,27)
+#define 6D_INT     DEVPIN(0,11)
+
+/*compatabile name with ubit*/
+#define I2C1_SDA 6D_I2C_SDA
+#define I2C1_SCL 6D_I2C_SCL
+
+/*Microphone*/
+#define MIC_PWR  DEVPIN(1,10)
+#define PDM_CLK  DEVPIN(1, 0)
+#define PDM_DATA DEVPIN(0,16)
+#endif
+
+/*BQ25100*/
+#define HICHG	DEVPIN(0,13)
+#define INV_CHG	DEVPIN(0,17) 
+//pick a better name for active ~CHG than INVCHG
+//note this also drives the charge led aswell as PRETERM pin
+//some confusion over device pimoroni sales page indicates it maybe BQ25101
+
+/*QSPI */ //not implemented yet 
+#define QSPI_SCK	DEVPIN(0,21)
+#define QSPI_CSN	DEVPIN(0,25)
+#define QSPI_SIO_0	DEVPIN(0,20)
+#define QSPI_SIO_1	DEVPIN(0,24)
+#define QSPI_SIO_2	DEVPIN(0,22)
+#define QSPI_SIO_3	DEVPIN(0,23)
+
+/*
+GUESS
+EXTERNAL QSPI FLASH AS SPI P25Q16H
+#define ?SCK  QSPI_SCK		DEVPIN(0,21)
+#define ?CSN  QSPI_CSN		DEVPIN(0,25)
+#define ?DI   QSPI_SIO_0	DEVPIN(0,20)
+#define ?DO   QSPI_SIO_1	DEVPIN(0,24)
+#define ?WP   QSPI_SIO_2	DEVPIN(0,22)
+#define ?HOLD QSPI_SIO_3	DEVPIN(0,23)
+*/
+
+/*NFC*/ //not implemented yet
+#define NFC1	DEVPIN(0, 9)
+#define NFC2	DEVPIN(0,10)
+
+//#define   BUTTON_A PAD?
+//#define BUTTON_USER BUTTON_A
+
+/* PAD
+A0 0
+A1 1
+A2 2
+A3 3
+A4 4
+A5 5
+VBAT DEVPIN(0,31)
+*/
+
+/*
 #define I2C_INTERNAL 0
 #define I2C_EXTERNAL 1
+internal and external might need to be reversed for xiao
+THINK need to swap check best way
+*/
+//swapped internal and external over for XAIOnrf52840 for now
+//may make more sense to reorder struct and vary N_I2C depending on board
+//i.e. could make N_I2C==2 for SENSE and == 1 where no IMU fitted
+#define I2C_EXTERNAL 0
+#define I2C_INTERNAL 1
+
 #define N_I2C 2
 
 /* TODO: Logo touch, mic power, mic input, speaker */
+
+//grep for PSEL for io config of pins, ignoring xNN-app examples except PWM
+//TX/RX microbian.c and serial.c
+//SDA/SCL i2c.c
+//ADC adc.c
+//PAD1/PAD2 x19-servos/pwm.c
+//x32-infrared/decode.c has IR_PIN
+
+//?look in to adding disconnect function don't know what initial state of pins
+//should be?
 
 /* Interrupts */
 #define SVC_IRQ    -5
 #define PENDSV_IRQ -2
 #define SYSTICK_IRQ -1
 #define RADIO_IRQ   1
-#define UART0_IRQ   2
-#define I2C0_IRQ    3
-#define I2C1_IRQ    4
+#define UART0_IRQ   2 //depracated can also use UARTE0
+#define I2C0_IRQ    3 //either TWI0 (depracated) or TWIM0
+#define I2C1_IRQ    4 //either TWI1 (depracated) or TWIM1
+/*                  5 NFCT Near Field communication tag*/
 #define GPIOTE_IRQ  6
-#define ADC_IRQ     7
-#define TIMER0_IRQ  8
+#define ADC_IRQ     7 //SAADC
+#define TIMER0_IRQ  8 
 #define TIMER1_IRQ  9
 #define TIMER2_IRQ 10
-#define RTC0_IRQ   11
+#define RTC0_IRQ   11 //Real-time counter 0
 #define TEMP_IRQ   12
 #define RNG_IRQ    13
-#define RTC1_IRQ   17
+/*                 16 WDT Watchdog timer*/
+#define RTC1_IRQ   17 //Real-time counter 1
 #define TIMER3_IRQ 26
 #define TIMER4_IRQ 27
 #define PWM0_IRQ   28
+/*                 29 PDM Pulse density Modulation (digital microphone) i/f*/
 #define PWM1_IRQ   33
 #define PWM2_IRQ   34
-#define SPI0_IRQ   35
-#define UART1_IRQ  40
+#define SPI0_IRQ   35 //SPIM2 SPI master 2
+/*                 39 USBD*/
+#define UART1_IRQ  40 //UARTE1
+/*                 41 QSPI*/
+/*                 42 CRYPTOCELL*/
 #define PWM3_IRQ   45
-#define SPI1_IRQ   47
+#define SPI1_IRQ   47 //SPIM3 SPI master 3
 
 #define N_INTERRUPTS 64
 
@@ -551,7 +678,10 @@ _DEVICE _temp {
 
 #define TEMP (* (volatile _DEVICE _temp *) 0x4000c000)
 
-
+/*guess this is newer version i.e. TWIM(0/1)
+because of presence of INTEN, is missing from doc on depracated version
+note POWER missing from doc for nRF52840 need to go back and cf nRF52833
+*/
 /* I2C */
 _DEVICE _i2c {
 /* Tasks */
