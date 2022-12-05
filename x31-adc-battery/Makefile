@@ -37,7 +37,7 @@ SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 %: %.o; @$(SORRY)
 
 clean:
-	rm -f *.hex *.elf *.bin *.map *.o
+	rm -f *.hex *.elf *.bin *.map *.o ../microbian/microbian.[ao]
 
 # Don't delete intermediate files
 .SECONDARY:

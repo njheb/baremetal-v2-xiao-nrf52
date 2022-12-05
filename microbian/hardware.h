@@ -8,7 +8,7 @@
 #define XAIO_NRF52840
 #undef  XAIO_NRF52840_SENSE //define for extra peripherals
 
-#undef  XAIO_NRF52840_EXTERNAL_I2C //define to enable
+#define  XAIO_NRF52840_EXTERNAL_I2C //define to enable
 #define  XAIO_NRF52840_SERIAL
 #undef  XAIO_NRF52840_SPI
 

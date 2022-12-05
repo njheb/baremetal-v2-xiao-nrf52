@@ -39,12 +39,15 @@ OUTPUT_FORMAT ("elf32-littlearm")
 ENTRY(__reset)
 
 SECTIONS {
-    .text ALIGN(16) : SUBALIGN(16) {
+    . = 0x27000;
+/*    .text : ALIGN(16) : SUBALIGN(16) {*/
+    .text : {
+
         KEEP(*(.vectors))
         *(.text*)
         *(.rodata*)
-/*        . = ALIGN(4);*/
-        . = ALIGN(0x27000);
+        . = ALIGN(4);
+/*        . = ALIGN(0x27000);*/
         __etext = .;
 
         PROVIDE(nmi_handler = default_handler);
