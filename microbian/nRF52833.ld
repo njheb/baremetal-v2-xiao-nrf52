@@ -23,7 +23,8 @@ MEMORY {
 /*    FLASH   (rx)  : ORIGIN = 0x00000000,      LENGTH = 512K */
 /*    RAM     (rwx) : ORIGIN = 0x20000000,      LENGTH = 124K */
 
-  FLASH   (rx)  : ORIGIN = 0x27000,         LENGTH = 0xed000 - 0x27000 
+/*  FLASH   (rx)  : ORIGIN = 0x27000,         LENGTH = 0xed000 - 0x27000 */
+    FLASH   (rx)  : ORIGIN = 0x00027000,      LENGTH = 1024K - 0x27000 
   RAM     (rwx) : ORIGIN = 0x20006000,      LENGTH = 228K
   CODERAM (rwx) : ORIGIN = 0x00800000+228K, LENGTH = 4K
 }
@@ -42,7 +43,8 @@ SECTIONS {
         KEEP(*(.vectors))
         *(.text*)
         *(.rodata*)
-        . = ALIGN(4);
+/*        . = ALIGN(4);*/
+        . = ALIGN(0x27000);
         __etext = .;
 
         PROVIDE(nmi_handler = default_handler);

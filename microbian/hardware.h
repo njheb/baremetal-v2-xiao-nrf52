@@ -9,10 +9,10 @@
 #undef  XAIO_NRF52840_SENSE //define for extra peripherals
 
 #undef  XAIO_NRF52840_EXTERNAL_I2C //define to enable
-#undef  XAIO_NRF52840_SERIAL
+#define  XAIO_NRF52840_SERIAL
 #undef  XAIO_NRF52840_SPI
 
-#define  XAIO_EXTENSION_BOARD //define this and switch on all 3 above (currently not spi)
+#undef  XAIO_EXTENSION_BOARD //define this and switch on all 3 above (currently not spi)
 
 /* Hardware register definitions for nRF52833 */
 
@@ -126,15 +126,15 @@ argument to be a macro that expands the a 'position, width' pair. */
 #define 6D_I2C_SCL DEVPIN(0,27)
 #define 6D_INT     DEVPIN(0,11)
 
-/*compatabile name with ubit*/
-#define I2C1_SDA 6D_I2C_SDA
-#define I2C1_SCL 6D_I2C_SCL
-
 /*Microphone*/
 #define MIC_PWR  DEVPIN(1,10)
 #define PDM_CLK  DEVPIN(1, 0)
 #define PDM_DATA DEVPIN(0,16)
 #endif
+
+/*compatabile name with ubit*/
+#define I2C1_SDA DEVPIN(0, 7)
+#define I2C1_SCL DEVPIN(0,27)
 
 /*BQ25100*/
 #define HICHG	DEVPIN(0,13)

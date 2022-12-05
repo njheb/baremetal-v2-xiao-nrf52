@@ -153,21 +153,22 @@ void spin(void)
        just go at about half speed. */
 
     int i, k;
-
+//TODO NJH
+/*
     static const unsigned ssod[] = {
         __ROW(ROW1, 0,1,0,1,0),
         __ROW(ROW3, 1,0,1,0,1),
         __ROW(ROW5, 0,1,0,1,0)
     };
-
+*/
     intr_disable();
-
+/*
     GPIO0.DIR = LED_MASK0;
     GPIO1.DIR = LED_MASK1;
     
     while (1) {
-        for (k = 33; k > 0; k--) { /* 0.5s on */
-            for (i = 0; i < 6; i += 2) { /* 15ms per loop */
+        for (k = 33; k > 0; k--) { // 0.5s on 
+            for (i = 0; i < 6; i += 2) { // 15ms per loop 
                 GPIO0.OUT = ssod[i];
                 GPIO1.OUT = ssod[i+1];
                 delay_loop(5000);
@@ -175,8 +176,9 @@ void spin(void)
         }
         GPIO0.OUT = 0;
         GPIO0.OUT = 0;
-        delay_loop(100000); /* 0.1s off */
+        delay_loop(100000); // 0.1s off 
     }          
+*/
 }
 
 void default_handler(void) __attribute((weak, alias("spin")));
