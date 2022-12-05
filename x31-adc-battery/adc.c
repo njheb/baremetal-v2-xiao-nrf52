@@ -73,9 +73,31 @@ static void adc_task(int dummy)
 /* chantab -- translate pin numbers to ADC channels */
 static const int chantab[] = {
 #ifdef UBIT_V2
+#if defined (XAIO_NRF52840) || defined(XAIO_NRF52840_SENSE)
+    A0, 0, A1, 1, A2, 2, A3, 3, A4, 4, A5, 5, VBAT, 7,
+#else
     PAD0, 0, PAD1, 1, PAD2, 2, PAD3, 7, PAD4, 4, PAD10, 6,
 #endif
+#endif
     0
+/*
+#define PIN_A0               (0) P0.2
+#define PIN_A1               (1) P0.3
+#define PIN_A2               (2) P0.4
+#define PIN_A3               (3) P0.5
+#define PIN_A4               (4) P0.28
+#define PIN_A5               (5)   .29
+#define PIN_VBAT             (32)  .31
+#define VBAT_ENABLE          (14)
+
+A6 would have been p0.30, but is user green.
+
+NOTE
+#define NUM_ANALOG_INPUTS    (8) // A6 is used for battery, A7 is analog reference
+NOTE
+
+*/
+
 };
 
 /* adc_reading -- get ADC reading on specfied pin */

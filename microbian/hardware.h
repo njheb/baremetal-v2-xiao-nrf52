@@ -169,15 +169,16 @@ EXTERNAL QSPI FLASH AS SPI P25Q16H
 //#define   BUTTON_A PAD?
 //#define BUTTON_USER BUTTON_A
 
-/* PAD
-A0 0
-A1 1
-A2 2
-A3 3
-A4 4
-A5 5
-VBAT DEVPIN(0,31)
-*/
+
+#define A0 DEVPIN(0, 2)  //0
+#define A1 DEVPIN(0, 3)  //1
+#define A2 DEVPIN(0, 4)  //2
+#define A3 DEVPIN(0, 5)  //3
+#define A4 DEVPIN(0, 28) //4
+#define A5 DEVPIN(0, 29) //5
+#define VBAT DEVPIN(0,31)//7
+
+//note A6 would have been P0.30, but is used for user green led
 
 /*
 #define I2C_INTERNAL 0
