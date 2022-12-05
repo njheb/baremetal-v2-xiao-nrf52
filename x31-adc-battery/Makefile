@@ -11,6 +11,7 @@ AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 SIZE = arm-none-eabi-size
 OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
 
 vpath %.h ../microbian
 
@@ -43,5 +44,8 @@ clean:
 .SECONDARY:
 
 ###
+
+show: clean all
+	$(OBJDUMP) -D battery.elf | less
 
 battery.o adc.o: microbian.h lib.h hardware.h

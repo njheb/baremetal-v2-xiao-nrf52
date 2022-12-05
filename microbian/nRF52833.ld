@@ -39,9 +39,9 @@ OUTPUT_FORMAT ("elf32-littlearm")
 ENTRY(__reset)
 
 SECTIONS {
-    . = 0x27000;
-/*    .text : ALIGN(16) : SUBALIGN(16) {*/
-    .text : {
+/*    . = 0x27000;*/
+    .text : ALIGN(16) /* : SUBALIGN(16)*/ {
+/*    .text : {*/
 
         KEEP(*(.vectors))
         *(.text*)
