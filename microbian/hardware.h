@@ -117,6 +117,7 @@ argument to be a macro that expands the a 'position, width' pair. */
 #define LED_GREEN DEVPIN(0,30)
 #define LED_BLUE  DEVPIN(0, 6)
 
+
 #define READ_BAT  DEVPIN(0,14)
 
 #ifdef XAIO_NRF52840_SENSE
@@ -1096,15 +1097,15 @@ inline unsigned gpio_in(unsigned pin) {
 
 
 /* Image constants */
-
+/*
 #define NIMG 10
 
 typedef unsigned image[NIMG];
 
-#define LED_MASK0 0xd1688800 /* 1101 0001 0110 1000 1000 1000 0000 0000 */
-#define LED_MASK1 0x00000020
-#define LED_DOT0  0x50008800 /* 0101 0000 0000 0000 1000 1000 0000 0000 */
-#define LED_DOT1  0x00000020
+#define LED_MASK0 0xd1688800*/ /* 1101 0001 0110 1000 1000 1000 0000 0000 */
+/*#define LED_MASK1 0x00000020
+#define LED_DOT0  0x50008800*/ /* 0101 0000 0000 0000 1000 1000 0000 0000 */
+/*#define LED_DOT1  0x00000020
 
 #define __ROW(r, c1, c2, c3, c4, c5) \
     BIT(r) | (!c1<<28) | (!c2<<11) | (!c3<<31) | (!c5<<30), (!c4<<5)
@@ -1123,6 +1124,34 @@ typedef unsigned image[NIMG];
 #define led_init()  GPIO0.DIRSET = LED_MASK0, GPIO1.DIRSET = LED_MASK1
 #define led_dot()   GPIO0.OUTSET = LED_DOT0, GPIO1.OUTSET = LED_DOT1
 #define led_off()   GPIO0.OUTCLR = LED_MASK0, GPIO1.OUTCLR = LED_MASK1
+*/
+//?avoid naming LED_MASK0 until any dependant code gets cleaned
+
+
+#define PWR_RED   6 //DEVPIN(1, 6)
+
+#define NEO_RED   26 //DEVPIN(0,26)
+#define NEO_GREEN 30 //DEVPIN(0,30)
+#define NEO_BLUE   6 //DEVPIN(0, 6)
+
+
+#define LED_MASK0  ((1<<NEO_RED) | (1<<NEO_GREEN) | (1<<NEO_BLUE))
+#define LED_MASK1  ((1<<PWR_RED))
+
+#define led_init()    GPIO0.DIRSET = LED_MASK0, GPIO1.DIRSET = LED_MASK1
+#define led_pwr_on()  GPIO1.OUTCLR = LED_MASK1
+#define led_pwr_off() GPIO1.OUTSET = LED_MASK1
+
+#define LED_MASK0_BLACK   0
+#define LED_MASK0_BLUE    (1<<NEO_BLUE)
+#define LED_MASK0_RED                     (1<<NEO_RED)
+#define LED_MASK0_MAGENTA (1<<NEO_BLUE) | (1<<NEO_RED)
+#define LED_MASK0_GREEN                                  (1<<NEO_GREEN)
+#define LED_MASK0_CYAN    (1<<NEO_BLUE)                | (1<<NEO_GREEN)
+#define LED_MASK0_YELLOW                  (1<<NEO_RED) | (1<<NEO_GREEN)
+#define LED_MASK0_WHITE   (1<<NEO_BLUE) | (1<<NEO_RED) | (1<<NEO_GREEN)
+
+#define led_neo(COLOUR) GPIO0.OUTSET = LED_MASK0, GPIO0.OUTCLR = LED_MASK0_##COLOUR
 
 
 /* CODERAM -- mark function for copying to RAM */

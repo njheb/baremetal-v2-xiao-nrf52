@@ -152,8 +152,9 @@ void spin(void)
        We assume the icache is enabled -- if not, the flashing will
        just go at about half speed. */
 
-    int i, k;
-//TODO NJH
+/* try flashing RED and BLUE as we don't have a charlieplexed led matrix*/
+
+//    int i, k;
 /*
     static const unsigned ssod[] = {
         __ROW(ROW1, 0,1,0,1,0),
@@ -162,11 +163,13 @@ void spin(void)
     };
 */
     intr_disable();
-/*
+
+
     GPIO0.DIR = LED_MASK0;
-    GPIO1.DIR = LED_MASK1;
-    
+//    GPIO1.DIR = LED_MASK1; //might play with power led
+ 
     while (1) {
+/*
         for (k = 33; k > 0; k--) { // 0.5s on 
             for (i = 0; i < 6; i += 2) { // 15ms per loop 
                 GPIO0.OUT = ssod[i];
@@ -174,12 +177,24 @@ void spin(void)
                 delay_loop(5000);
             }
         }
+
         GPIO0.OUT = 0;
         GPIO0.OUT = 0;
-        delay_loop(100000); // 0.1s off 
-    }          
 */
+	led_neo(RED);
+        delay_loop(200000); // 0.2s red
+	led_neo(BLACK);
+        delay_loop(100000); // 0.1s off
+	led_neo(BLUE);
+        delay_loop(200000); // 0.2s blue
+	led_neo(BLACK);
+        delay_loop(100000); // 0.1s off
+
+    }
+
 }
+
+//TODO more handlers to add for nrf52840
 
 void default_handler(void) __attribute((weak, alias("spin")));
 
