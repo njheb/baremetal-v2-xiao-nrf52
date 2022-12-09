@@ -60,22 +60,23 @@ void sender_task(int dummy)
     int alternate = 0;
     gpio_connect(BUTTON_A);
 //    gpio_connect(BUTTON_B);
+    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
 
     while (1) {
         if (gpio_in(BUTTON_A) == 0) {
-	    alternate++;
-            if (alternate & 1)
-	    {
-                printf("Press A\n");
-                radio_send("1", 1);
-	        led_neo(GREEN);
-            }
-	    else
-	    {
-                printf("Press B\n");
-                radio_send("2", 1);
- 	        led_neo(BLUE);
-            }
+	       alternate++;
+           if (alternate & 1)
+	       {
+               printf("Press A\n");
+               radio_send("1", 1);
+	           led_neo(GREEN);
+           }
+	       else
+	       {
+              printf("Press B\n");
+              radio_send("2", 1);
+ 	          led_neo(BLUE);
+           }
             //radio_send("2", 1); might try randomly sending "1" or "2" as only have one button handily available
         }
 
@@ -91,7 +92,7 @@ void init(void)
     timer_init();
 //    display_init();
     led_init(); //instead of display
-    led_neo(BLACK); //not actually needed init should leave
+    led_neo(WHITE);
     start("Receiver", receiver_task, 0, STACK);
     start("Sender", sender_task, 0, STACK);
 }

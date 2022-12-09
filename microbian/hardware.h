@@ -1076,6 +1076,12 @@ inline void gpio_connect(unsigned pin) {
               GPIO_PINCNF_INPUT, GPIO_INPUT_Connect);
 }
 
+/* gpio_pull -- configure pin pullup */
+inline void gpio_pull(unsigned pin, unsigned mode) {
+    SET_FIELD(GPIO[PORT(pin)]->PINCNF[PIN(pin)],
+              GPIO_PINCNF_PULL, mode);
+}
+
 /* gpio_drive -- set GPIO drive strength */
 inline void gpio_drive(unsigned pin, unsigned mode) {
     SET_FIELD(GPIO[PORT(pin)]->PINCNF[PIN(pin)],
