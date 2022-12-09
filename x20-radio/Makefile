@@ -41,10 +41,10 @@ SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 %: %.s; @$(SORRY)
 %: %.o; @$(SORRY)
 
-#THIS BRICKED the nrf52840
-#upload: $(APPNAME).dfu.zip 
-#	adafruit-nrfutil --verbose dfu serial -pkg $(APPNAME).dfu.zip -p /dev/ttyACM0 -b 115200 --singlebank 
-#	@echo "Programmed"
+#THIS BRICKED the nrf52840 but may have been a coincidence
+upload: $(APPNAME).dfu.zip 
+	adafruit-nrfutil --verbose dfu serial -pkg $(APPNAME).dfu.zip -p /dev/ttyACM0 -b 115200 --singlebank 
+	@echo "Programmed"
 
 
 
