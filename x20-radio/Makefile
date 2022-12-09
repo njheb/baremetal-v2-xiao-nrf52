@@ -1,6 +1,8 @@
 # x20/Makefile
 # Copyright (c) 2020-21 J. M. Spivey
 
+APPNAME = remote
+
 all: remote.hex
 
 CC = arm-none-eabi-gcc
@@ -28,6 +30,9 @@ vpath %.h ../microbian
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $< $@
 
+%.dfu.zip: %.hex
+	adafruit-nrfutil dfu genpkg --dev-type 0x0052 --application $< $@
+
 ../microbian/microbian.a:
 	$(MAKE) -C $(@D) all
 
@@ -35,6 +40,14 @@ vpath %.h ../microbian
 SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 %: %.s; @$(SORRY)
 %: %.o; @$(SORRY)
+
+#THIS BRICKED the nrf52840
+#upload: $(APPNAME).dfu.zip 
+#	adafruit-nrfutil --verbose dfu serial -pkg $(APPNAME).dfu.zip -p /dev/ttyACM0 -b 115200 --singlebank 
+#	@echo "Programmed"
+
+
+
 
 clean:
 	rm -f *.hex *.elf *.bin *.map *.o
