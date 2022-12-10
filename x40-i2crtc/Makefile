@@ -1,7 +1,7 @@
-# x20/Makefile
+# x18/Makefile
 # Copyright (c) 2020-21 J. M. Spivey
 
-APPNAME = remote
+APPNAME = i2crtc
 
 all: $(APPNAME).hex
 
@@ -22,7 +22,7 @@ vpath %.h ../microbian
 %.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-%.elf: %.o ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o accel.o ../microbian/microbian.a ../microbian/startup.o
 	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
@@ -53,4 +53,5 @@ clean:
 
 ###
 
-remote.o: hardware.h lib.h microbian.h
+level.o: accel.h hardware.h lib.h microbian.h
+accel.o: accel.h microbian.h
