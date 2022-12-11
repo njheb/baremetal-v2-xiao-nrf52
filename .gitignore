@@ -5,6 +5,7 @@
 *.bin
 *.hex
 *.map
+*.dfu.zip
 *~
 .vscode
 *.code-workspace
