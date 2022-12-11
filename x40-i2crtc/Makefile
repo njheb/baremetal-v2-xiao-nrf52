@@ -23,7 +23,10 @@ vpath %.h ../microbian
 	$(AS) $(CPU) $< -o $@
 
 %.elf: %.o accel.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
-	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
+#	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
+#		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+#possible linker error
+	$(CC) $(CPU) $(CFLAGS) -T ./XIAOnRF52840.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
 

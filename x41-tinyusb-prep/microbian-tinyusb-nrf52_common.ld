@@ -17,7 +17,9 @@
  * the new terms are clearly indicated on the first page of each file where
  * they apply.
  */
-OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
+/*NJH OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")*/
+OUTPUT_FORMAT ("elf32-littlearm")
+
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -58,7 +60,7 @@ __StackSize = 1024*2;
 
 /* Set stack top to end of RAM, and stack limit move down by size of stack_dummy section */
 STACK_SIZE = 2048; /*NJH copying usbtrinket could be more generous on this processor*/
-
+/*NJH
 PROVIDE(__StackTop   = ORIGIN(RAM) + LENGTH(RAM));
 PROVIDE(__StackLimit = __StackTop - __StackSize);
 PROVIDE(__stack      = __StackTop);
@@ -164,7 +166,15 @@ SECTIONS
 
     __etext = .;  /*NJH same as microbian*/
 
-    .data : AT (__etext)
+    .xram : AT (LOADADDR(.text) + SIZEOF(.text)) 
+    {
+        __xram_start = .;
+        *(.xram*)
+        . = ALIGN(4);
+        __xram_end = .;
+    } > CODERAM
+
+    .data : AT (LOADADDR(.xram) + SIZEOF(.xram))
     {
         __data_start__ = .;
         __data_start = __data_start__; /*NJH microbian*/
@@ -212,6 +222,10 @@ SECTIONS
         __bss_end = __bss_end__; /*NJH*/
     } > RAM
 /*NJH not sure about heap*/
+
+    __stack = ORIGIN(RAM) + LENGTH(RAM);
+    __stack_limit = __stack - STACK_SIZE; /*2048 should fit in with align(8)*/
+
     .heap :
     {
         __HeapBase = .;
@@ -219,7 +233,9 @@ SECTIONS
         __end = __end__; /*NJH*/
         PROVIDE(end = .);
         KEEP(*(.heap*))
-        . = ALIGN(__StackLimit);
+ /*       . = ALIGN(__StackLimit);*/
+        . = ALIGN(__stack_limit);
+ 
         __HeapLimit = .;
     } > RAM
     
@@ -231,17 +247,20 @@ SECTIONS
     .stack_dummy (COPY):
     {
         KEEP(*(.stack*))
-    __stack = ORIGIN(RAM) + LENGTH(RAM);
-    __stack_limit = __stack - STACK_SIZE; /*2048 should fit in with align(8)*/
     _sstack = __stack_limit;
     _estack = __stack;
 
     } > RAM
-    */
+    
     
     /* Check if data + heap + stack exceeds RAM limit */
  /*NJH not sure about heap stuff*/
+/*
     ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
     ASSERT(__StackLimit >= __bss_end__, "region RAM overflowed with stack")
+*/
+    ASSERT(__stack_limit >= __HeapLimit, "region RAM overflowed with stack")
+    ASSERT(__stack_limit >= __bss_end__, "region RAM overflowed with stack")
+
 }
 

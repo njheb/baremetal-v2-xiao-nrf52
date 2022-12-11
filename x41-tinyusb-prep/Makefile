@@ -25,7 +25,7 @@ vpath %.h ../microbian
 %.elf: %.o accel.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
-	$(CC) $(CPU) $(CFLAGS) -T ./tinyusb-XIAOnRF52840.ld \
+	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
 
