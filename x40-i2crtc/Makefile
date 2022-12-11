@@ -22,7 +22,7 @@ vpath %.h ../microbian
 %.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-%.elf: %.o accel.o ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o accel.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
 	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
@@ -55,3 +55,4 @@ clean:
 
 level.o: accel.h hardware.h lib.h microbian.h
 accel.o: accel.h microbian.h
+PCF8563.o: PCF8563.h microbian.h

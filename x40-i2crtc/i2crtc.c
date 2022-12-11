@@ -5,6 +5,7 @@
 #include "hardware.h"
 #include "lib.h"
 #include "accel.h"
+#include "PCF8563.h"
 
 /* light -- show one pixel */
 void light(int x, int y)
@@ -60,12 +61,28 @@ static void main(int n)
     printf("\n");
     timer_delay(1000);
 //    accel_start();
+  PCF8563__init();//initialize the clock
+  PCF8563__stopClock();//stop the clock
+  PCF8563__setYear(20);//set year
+  PCF8563__setMonth(10);//set month
+  PCF8563__setDay(23);//set dat
+  PCF8563__setHour(17);//set hour
+  PCF8563__setMinut(33);//set minut
+  PCF8563__setSecond(0);//set second
+  PCF8563__startClock();//start the clock
+
+    struct PCF8563_Time nT;
 
     while (1) {
-	led_neo(GREEN);
+	    led_neo(GREEN);
         timer_delay(500);
-	led_neo(BLUE);
+
+	    PCF8563__getTime(&nT);//get current time
+
+	    led_neo(BLUE);
         timer_delay(500);
+
+        printf("%d/%d/20%d %d:%d:%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
 
 //        accel_reading(&x, &y, &z);
 //        printf("x=%d y=%d z=%d\n", x, y, z);
