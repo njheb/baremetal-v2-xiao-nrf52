@@ -3,12 +3,12 @@
 
 #include "microbian.h"
 #include "hardware.h"
-#include "lib.h"
+//#include "lib.h"
 #include "accel.h"
 #include "PCF8563.h"
 
 //#include "bsp/board.h"
-#include "../tinyusb/src/tusb.h" //set path ? in Makefile or locally for now
+#include "tusb.h" //set path ? in Makefile or locally for now
 //going to need lots of includes so add to Makefile
 //take a look at linker script 
 
@@ -16,7 +16,7 @@
 static void cdc_task(void);
 #define BUTTON_A  DEVPIN(0, 3)
 
-
+extern void usb_init(void); 
 
 static void i2c_map(void)
 {

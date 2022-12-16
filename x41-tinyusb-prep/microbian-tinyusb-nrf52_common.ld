@@ -55,16 +55,16 @@ ENTRY(__reset)
  * Stack is used by ISR and SoftDevice only, other code run on thread's allocated stack from heap. 
  * Maximum stack used by S132's spec is 1536 byte. Therefore 2KB should be enough
  */
-/*NJH stack calc below
+
 __StackSize = 1024*2;
 
 /* Set stack top to end of RAM, and stack limit move down by size of stack_dummy section */
-STACK_SIZE = 2048; /*NJH copying usbtrinket could be more generous on this processor*/
-/*NJH
+STACK_SIZE = __StackSize; 
 PROVIDE(__StackTop   = ORIGIN(RAM) + LENGTH(RAM));
 PROVIDE(__StackLimit = __StackTop - __StackSize);
 PROVIDE(__stack      = __StackTop);
-*/
+
+
 
 /* Flash region */
 /*NJH
@@ -143,8 +143,11 @@ SECTIONS
         PROVIDE(rtc2_handler = default_handler);
         PROVIDE(i2s_handler = default_handler);
         PROVIDE(fpu_handler = default_handler);
-        PROVIDE(usbd_handler = default_handler);
-        PROVIDE(uart1_handler = default_handler);
+/*        PROVIDE(usbd_handler = default_handler);
+        PROVIDE(uart1_handler = default_handler); */
+        PROVIDE(usbd_handler = USBD_IRQHandler);
+        PROVIDE(uart1_handler = UARTE1_IRQHandler);
+
 /*QSPI*/
 /*CRYPTOCELL*/
         PROVIDE(pwm3_handler = default_handler);  /*PWM3*/
@@ -166,7 +169,8 @@ SECTIONS
 
     __etext = .;  /*NJH same as microbian*/
 
-    .xram : AT (LOADADDR(.text) + SIZEOF(.text)) 
+/*    .xram : AT (LOADADDR(.text) + SIZEOF(.text))*/ 
+    .xram : AT (LOADADDR(.text) + SIZEOF(.text) + SIZEOF(.ARM.extab) + SIZEOF(.ARM.exidx))
     {
         __xram_start = .;
         *(.xram*)
@@ -222,6 +226,7 @@ SECTIONS
         __bss_end = __bss_end__; /*NJH*/
     } > RAM
 /*NJH not sure about heap*/
+
 
     __stack = ORIGIN(RAM) + LENGTH(RAM);
     __stack_limit = __stack - STACK_SIZE; /*2048 should fit in with align(8)*/

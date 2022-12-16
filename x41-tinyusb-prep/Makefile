@@ -7,8 +7,8 @@ all: $(APPNAME).hex
 
 CC = arm-none-eabi-gcc
 CPU = -mcpu=cortex-m4 -mthumb
-CFLAGS = -O -g -Wall -ffreestanding
-INCLUDE = -I ../microbian
+CFLAGS = -O -g -Wall -ffreestanding -DCFG_TUSB_MCU=OPT_MCU_NRF5X
+INCLUDE = -I ../microbian -I ../../tinyusb/src -I ../../tinyusb/examples/device/cdc_XIAO_donor/src
 AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 SIZE = arm-none-eabi-size
