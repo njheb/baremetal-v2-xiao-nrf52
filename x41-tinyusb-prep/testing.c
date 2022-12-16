@@ -7,24 +7,16 @@
 #include "accel.h"
 #include "PCF8563.h"
 
-/* light -- show one pixel */
-void light(int x, int y)
-{
-//    image screen;
-//    image_clear(screen);
-//    image_set(x, y, screen);
-//    display_show(screen);
-}
+//#include "bsp/board.h"
+#include "../tinyusb/src/tusb.h" //set path ? in Makefile or locally for now
+//going to need lots of includes so add to Makefile
+//take a look at linker script 
 
-/* scale -- map acceleration to coordinate */
-static int scale(int x)
-{
-    if (x < -20) return 4;
-    if (x < -10) return 3;
-    if (x <= 10) return 2;
-    if (x <= 20) return 1;
-    return 0;
-}
+//------------- prototypes -------------//
+static void cdc_task(void);
+#define BUTTON_A  DEVPIN(0, 3)
+
+
 
 static void i2c_map(void)
 {
@@ -83,13 +75,78 @@ static void main(int n)
         timer_delay(500);
 
         printf("%d/%d/20%d %d:%d:%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
-
-//        accel_reading(&x, &y, &z);
-//        printf("x=%d y=%d z=%d\n", x, y, z);
-//        x = scale(x); y = scale(y);
-//        light(x, y);
     }
 }
+/* reflect button state on power led and drive hacked together  tinyusb stack */
+static void expt(int n)
+{
+
+    while (1)
+    {
+	timer_delay(100);
+//	board_led_write(board_button_read());
+        if (gpio_in(BUTTON_A) == 0)
+	   led_pwr_on();
+	else
+	   led_pwr_off();
+
+	tud_task(); // tinyusb device task
+	cdc_task();
+    }
+}
+
+// echo to either Serial0 or Serial1
+static void echo_serial_port(unsigned char itf, unsigned char buf[], unsigned int count)
+{
+//  uint8_t const case_diff = 'a' - 'A';
+
+
+  for(unsigned int i=0; i<count; i++)
+  {
+/*
+    if (itf == 0)
+    {
+      // echo back 1st port as lower case
+      if (isupper(buf[i])) buf[i] += case_diff;
+    }
+    else
+    {
+      // echo back 2nd port as upper case
+      if (islower(buf[i])) buf[i] -= case_diff;
+    }
+*/
+    tud_cdc_n_write_char(itf, buf[i]);
+  }
+  tud_cdc_n_write_flush(itf);
+}
+
+//--------------------------------------------------------------------+
+// USB CDC
+//--------------------------------------------------------------------+
+static void cdc_task(void)
+{
+  unsigned char itf;
+
+  for (itf = 0; itf < CFG_TUD_CDC; itf++)
+  {
+    // connected() check for DTR bit
+    // Most but not all terminal client set this when making connection
+    // if ( tud_cdc_n_connected(itf) )
+    {
+      if ( tud_cdc_n_available(itf) )
+      {
+        unsigned char buf[64];
+
+        unsigned int count = tud_cdc_n_read(itf, buf, sizeof(buf));
+
+        // echo back to both serial ports
+        echo_serial_port(0, buf, count);
+        echo_serial_port(1, buf, count);
+      }
+    }
+  }
+}
+
 
 void init(void)
 {
@@ -99,5 +156,14 @@ void init(void)
     led_init();
     led_neo(WHITE);
 //    display_init();
+
+    gpio_connect(BUTTON_A);
+    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+
+    usb_init(); //call to what was tinyusb board_init before it was hacked
+    // init device stack on configured roothub port
+    tud_init(BOARD_TUD_RHPORT);
+
+    start("Dual", expt,  0, STACK);
     start("Main", main, 0, STACK);
 }
