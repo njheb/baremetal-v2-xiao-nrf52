@@ -198,6 +198,11 @@ void spin(void)
 
 void default_handler(void) __attribute((weak, alias("spin")));
 
+
+extern void USBD_IRQHandler(void);
+extern void UARTE1_IRQHandler(void);
+
+
 /* The linker script makes all these handlers into weak aliases 
 for default_handler. */
 
@@ -247,8 +252,8 @@ void spi0_handler(void);
 void rtc2_handler(void);
 void i2s_handler(void);
 void fpu_handler(void);
-void usbd_handler(void);
-void uart1_handler(void);
+//void usbd_handler(void);
+//void uart1_handler(void);
 void pwm3_handler(void);
 void spi1_handler(void);
 
@@ -313,8 +318,13 @@ void *__vectors[] __attribute((section(".vectors"))) = {
     rtc2_handler,               /* 36 */
     i2s_handler,
     fpu_handler,
+/*
     usbd_handler,
-    uart1_handler,              /* 40 */
+    uart1_handler,              // 40
+*/
+    USBD_IRQHandler,
+    UARTE1_IRQHandler,          /* 40 */
+
     0,
     0,
     0,

@@ -143,11 +143,11 @@ SECTIONS
         PROVIDE(rtc2_handler = default_handler);
         PROVIDE(i2s_handler = default_handler);
         PROVIDE(fpu_handler = default_handler);
-/*        PROVIDE(usbd_handler = default_handler);
-        PROVIDE(uart1_handler = default_handler); */
-        PROVIDE(usbd_handler = USBD_IRQHandler);
+        PROVIDE(usbd_handler = default_handler);
+        PROVIDE(uart1_handler = default_handler); 
+/*        PROVIDE(usbd_handler = USBD_IRQHandler);
         PROVIDE(uart1_handler = UARTE1_IRQHandler);
-
+*/
 /*QSPI*/
 /*CRYPTOCELL*/
         PROVIDE(pwm3_handler = default_handler);  /*PWM3*/
