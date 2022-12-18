@@ -83,12 +83,18 @@ static void expt(int n)
 
     while (1)
     {
-	timer_delay(100);
+	timer_delay(40);
 //	board_led_write(board_button_read());
         if (gpio_in(BUTTON_A) == 0)
+	{
 	   led_pwr_on();
+	   led_neo(GREEN);
+	}
 	else
+	{
 	   led_pwr_off();
+	   led_neo(BLUE);
+	}
 
 	tud_task(); // tinyusb device task
 	cdc_task();
@@ -123,6 +129,7 @@ static void echo_serial_port(unsigned char itf, unsigned char buf[], unsigned in
 //--------------------------------------------------------------------+
 // USB CDC
 //--------------------------------------------------------------------+
+static unsigned char buf[64];
 static void cdc_task(void)
 {
   unsigned char itf;
@@ -131,16 +138,16 @@ static void cdc_task(void)
   {
     // connected() check for DTR bit
     // Most but not all terminal client set this when making connection
-    // if ( tud_cdc_n_connected(itf) )
+    if ( tud_cdc_n_connected(itf) )
     {
       if ( tud_cdc_n_available(itf) )
       {
-        unsigned char buf[64];
+//        unsigned char buf[64];
 
         unsigned int count = tud_cdc_n_read(itf, buf, sizeof(buf));
 
         // echo back to both serial ports
-        echo_serial_port(0, buf, count);
+        //echo_serial_port(0, buf, count);
         echo_serial_port(1, buf, count);
       }
     }
@@ -154,6 +161,7 @@ void init(void)
     timer_init();
     i2c_init(I2C_EXTERNAL);
     led_init();
+
     led_neo(WHITE);
 //    display_init();
 
@@ -164,6 +172,6 @@ void init(void)
     // init device stack on configured roothub port
     tud_init(BOARD_TUD_RHPORT);
 
-    start("Dual", expt,  0, STACK);
-    start("Main", main, 0, STACK);
+    start("Dual", expt,  0, STACK*4);
+//    start("Main", main, 0, STACK);
 }

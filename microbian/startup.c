@@ -199,6 +199,7 @@ void spin(void)
 void default_handler(void) __attribute((weak, alias("spin")));
 
 
+extern void POWER_CLOCK_IRQHandler(void);
 extern void USBD_IRQHandler(void);
 extern void UARTE1_IRQHandler(void);
 
@@ -215,7 +216,7 @@ void svc_handler(void);
 void debugmon_handler(void);
 void pendsv_handler(void);
 void systick_handler(void);
-void power_clock_handler(void);
+/*void power_clock_handler(void);*/
 void radio_handler(void);
 void uart0_handler(void);
 void i2c0_handler(void);
@@ -279,7 +280,8 @@ void *__vectors[] __attribute((section(".vectors"))) = {
     systick_handler,
     
     /* external interrupts */
-    power_clock_handler,        /*  0 */
+    /*power_clock_handler,*/        /*  0 */
+    POWER_CLOCK_IRQHandler,        /*  0 */
     radio_handler,
     uart0_handler,
     i2c0_handler,

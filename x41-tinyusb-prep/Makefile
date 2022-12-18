@@ -14,6 +14,29 @@ LD = arm-none-eabi-ld
 SIZE = arm-none-eabi-size
 OBJCOPY = arm-none-eabi-objcopy
 
+
+
+X41LIBMICROBIANLDFLAGS = -L/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/mdk \
+	-DNRF52840_XXAA -flto --use-linker-plugin -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DCFG_TUSB_MCU=OPT_MCU_NRF5X -DCONFIG_GPIO_AS_PINRESET \
+	-Wno-error=undef -Wno-error=unused-parameter -Wno-error=cast-align -Wno-error=cast-qual -ggdb -fdata-sections -ffunction-sections -fsingle-precision-constant -fno-strict-aliasing \
+	-Wall -Wextra -Werror -Wfatal-errors -Wdouble-promotion -Wstrict-prototypes -Wstrict-overflow -Werror-implicit-function-declaration -Wfloat-equal -Wundef -Wshadow -Wwrite-strings \
+	-Wsign-compare -Wmissing-format-attribute -Wunreachable-code -Wcast-align -Wcast-function-type -Wcast-qual -Wnull-dereference -Wuninitialized -Wunused -Wredundant-decls -Os \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/bsp/nrf/boards/xiao_nrf52840 \
+	-I/home/nick/work/xiao/baremetal/tinyusb/lib/CMSIS_5/CMSIS/Core/Include \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/mdk \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/hal \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/drivers/include \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/drivers/src \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw/bsp/nrf \
+	-Isrc \
+	-I/home/nick/work/xiao/baremetal/tinyusb/hw \
+	-I/home/nick/work/xiao/baremetal/tinyusb/src \
+	-Wl,-T,./microbian/microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
+	-Wl,-Map=$@.map -Wl,-cref -Wl,-gc-sections -specs=nosys.specs -specs=nano.specs
+
+
 vpath %.h ../microbian
 
 %.o: %.c
@@ -29,8 +52,18 @@ vpath %.h ../microbian
 %.elf: %.o accel.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
-	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
-		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+#	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
+#		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+#	$(CC) -o $@ \
+#	$(X41MICROBIANLDFLAGS) \
+#	$^ \
+#	-Wl,--start-group -lgcc -lm -lnosys -lc -Wl,--end-group
+#	arm-none-eabi-objdump -d $@ > disassembly.txt
+	$(CC) -o $@ \
+	$(X41MICROBIANLDFLAGS) \
+	$^ -nostdlib \
+	-Wl,-Map,$*.map -lgcc -lc
+	arm-none-eabi-objdump -d $@ > disassembly.txt
 	$(SIZE) $@
 
 %.hex: %.elf
