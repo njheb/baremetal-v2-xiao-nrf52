@@ -26,7 +26,10 @@ vpath %.h ../microbian
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 #possible linker error
-	$(CC) $(CPU) $(CFLAGS) -T ./XIAOnRF52840.ld \
+#	$(CC) $(CPU) $(CFLAGS) -T ./XIAOnRF52840.ld \
+#		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+	$(CC) $(CPU) $(CFLAGS) \
+		-T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
 
