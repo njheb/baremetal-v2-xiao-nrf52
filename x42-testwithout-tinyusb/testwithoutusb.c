@@ -7,6 +7,9 @@
 #include "accel.h"
 #include "PCF8563.h"
 
+#define BUTTON_A  DEVPIN(0, 3)
+
+
 /* light -- show one pixel */
 void light(int x, int y)
 {
@@ -95,11 +98,18 @@ static void main(int n)
 
 void pong(int n)
 {
+	int count = 0;
 	while (1) {
-		led_pwr_on();
-		timer_delay(750);
-		led_pwr_off();
-		timer_delay(750);
+		timer_delay(40); 		//similarly short time
+        	printf("TEST %d\n", count++);
+		if ((count % 50) == 0)  	//0.5 seconds green
+			led_neo(GREEN);
+		else if ((count % 50) == 25) 	//0.5 seconds blue
+			led_neo(BLUE);
+		if (gpio_in(BUTTON_A) == 0)
+			led_pwr_on();		//add red on button press
+		else
+			led_pwr_off();
 	}
 }
 
@@ -112,6 +122,11 @@ void init(void)
     led_neo(WHITE);
 //    display_init();
 
-    start("Pong", pong, 0, STACK);
-    start("Main", main, 0, STACK);
+    gpio_connect(BUTTON_A);
+    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+
+//noticed only actually running 1 task on breaking tinyusb code so replicate here
+//also grow stack same as tinyusb x41 
+    start("Pong", pong, 0, STACK*4);
+//    start("Main", main, 0, STACK);
 }

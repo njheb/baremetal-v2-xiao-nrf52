@@ -1135,7 +1135,7 @@ typedef unsigned image[NIMG];
 
 //DEVPIN(1,6) does not seem to be attached to anything unlike schematic 
 //#define PWR_RED   6 //DEVPIN(1, 6)
-#define PWR_RED   26 //DEVPIN(1, 6) becomes NASTY (0, 26)
+#define PWR_RED   26 //DEVPIN(1, 6) becomes NASTY (0, 26) which is NEO_RED
 
 #define NEO_RED   26 //DEVPIN(0,26)
 #define NEO_GREEN 30 //DEVPIN(0,30)
