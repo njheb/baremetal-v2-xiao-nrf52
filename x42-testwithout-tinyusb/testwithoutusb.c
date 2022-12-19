@@ -51,6 +51,8 @@ static void i2c_map(void)
     }
 }
 
+
+
 /* main_task -- show the spirit level */
 static void main(int n)
 {
@@ -91,6 +93,16 @@ static void main(int n)
     }
 }
 
+void pong(int n)
+{
+	while (1) {
+		led_pwr_on();
+		timer_delay(750);
+		led_pwr_off();
+		timer_delay(750);
+	}
+}
+
 void init(void)
 {
     serial_init();
@@ -99,5 +111,7 @@ void init(void)
     led_init();
     led_neo(WHITE);
 //    display_init();
+
+    start("Pong", pong, 0, STACK);
     start("Main", main, 0, STACK);
 }

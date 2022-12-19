@@ -1133,20 +1133,23 @@ typedef unsigned image[NIMG];
 */
 //?avoid naming LED_MASK0 until any dependant code gets cleaned
 
-
-#define PWR_RED   6 //DEVPIN(1, 6)
+//DEVPIN(1,6) does not seem to be attached to anything unlike schematic 
+//#define PWR_RED   6 //DEVPIN(1, 6)
+#define PWR_RED   26 //DEVPIN(1, 6) becomes NASTY (0, 26)
 
 #define NEO_RED   26 //DEVPIN(0,26)
 #define NEO_GREEN 30 //DEVPIN(0,30)
 #define NEO_BLUE   6 //DEVPIN(0, 6)
 
 
-#define LED_MASK0  ((1<<NEO_RED) | (1<<NEO_GREEN) | (1<<NEO_BLUE))
-#define LED_MASK1  ((1<<PWR_RED))
+#define LED_MASK0  	((1<<NEO_RED) | (1<<NEO_GREEN) | (1<<NEO_BLUE))
+#define LED_MASKNASTY	((1<<PWR_RED))
 
-#define led_init()    GPIO0.DIRSET = LED_MASK0, GPIO1.DIRSET = LED_MASK1
-#define led_pwr_on()  GPIO1.OUTCLR = LED_MASK1
-#define led_pwr_off() GPIO1.OUTSET = LED_MASK1
+//#define led_init()    GPIO0.DIRSET = LED_MASK0, GPIO1.DIRSET = LED_MASK1
+#define led_init()    GPIO0.DIRSET = LED_MASK0
+//had been using GPIO1 because schematic lied
+#define led_pwr_on()  GPIO0.OUTCLR = LED_MASKNASTY
+#define led_pwr_off() GPIO0.OUTSET = LED_MASKNASTY
 
 #define LED_MASK0_BLACK   0
 #define LED_MASK0_BLUE    (1<<NEO_BLUE)
