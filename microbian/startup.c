@@ -83,6 +83,7 @@ void __reset(void)
     memcpy(__data_start, __etext+xram_size, data_size);
     memset(__bss_start, 0, bss_size);
 
+
     __start();
 }
 
@@ -198,11 +199,11 @@ void spin(void)
 
 void default_handler(void) __attribute((weak, alias("spin")));
 
-
+#ifdef TINYUSBEXPT
 extern void POWER_CLOCK_IRQHandler(void);
 extern void USBD_IRQHandler(void);
 extern void UARTE1_IRQHandler(void);
-
+#endif
 
 /* The linker script makes all these handlers into weak aliases 
 for default_handler. */
@@ -216,7 +217,9 @@ void svc_handler(void);
 void debugmon_handler(void);
 void pendsv_handler(void);
 void systick_handler(void);
-/*void power_clock_handler(void);*/
+#ifndef TINYUSBEXPT
+void power_clock_handler(void);
+#endif
 void radio_handler(void);
 void uart0_handler(void);
 void i2c0_handler(void);
@@ -253,8 +256,12 @@ void spi0_handler(void);
 void rtc2_handler(void);
 void i2s_handler(void);
 void fpu_handler(void);
-//void usbd_handler(void);
-//void uart1_handler(void);
+#ifndef TINYUSBEXPT
+void usbd_handler(void);
+void uart1_handler(void);
+#else
+
+#endif
 void pwm3_handler(void);
 void spi1_handler(void);
 
@@ -280,8 +287,11 @@ void *__vectors[] __attribute((section(".vectors"))) = {
     systick_handler,
     
     /* external interrupts */
-    /*power_clock_handler,*/        /*  0 */
+#ifndef TINYUSBEXPT
+    power_clock_handler,        /*  0 */
+#else
     POWER_CLOCK_IRQHandler,        /*  0 */
+#endif
     radio_handler,
     uart0_handler,
     i2c0_handler,
@@ -320,13 +330,13 @@ void *__vectors[] __attribute((section(".vectors"))) = {
     rtc2_handler,               /* 36 */
     i2s_handler,
     fpu_handler,
-/*
+#ifndef TINYUSBEXPT
     usbd_handler,
     uart1_handler,              // 40
-*/
+#else
     USBD_IRQHandler,
     UARTE1_IRQHandler,          /* 40 */
-
+#endif
     0,
     0,
     0,

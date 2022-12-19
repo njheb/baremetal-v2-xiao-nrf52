@@ -33,7 +33,7 @@ X41LIBMICROBIANLDFLAGS = -L/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/
 	-Isrc \
 	-I/home/nick/work/xiao/baremetal/tinyusb/hw \
 	-I/home/nick/work/xiao/baremetal/tinyusb/src \
-	-Wl,-T,./microbian/microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
+	-Wl,-T./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
 	-Wl,-Map=$@.map -Wl,-cref -Wl,-gc-sections -specs=nosys.specs -specs=nano.specs
 
 
@@ -49,21 +49,19 @@ vpath %.h ../microbian
 #LINKER file needs looking at
 #ADD INCLUDES for tinyusb-cdc-lib.a
 #%.elf: %.o accel.o PCF8563.o ../tinyusb-lib/tinyusb-lib.a ../microbian/microbian.a ../microbian/startup.o
-%.elf: %.o accel.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o dummy.o accel.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 #	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
+		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map -Wl,-cref -Wl,-gc-sections -specs=nosys.specs -specs=nano.specs
+
 #	$(CC) -o $@ \
 #	$(X41MICROBIANLDFLAGS) \
 #	$^ \
 #	-Wl,--start-group -lgcc -lm -lnosys -lc -Wl,--end-group
 #	arm-none-eabi-objdump -d $@ > disassembly.txt
-	$(CC) -o $@ \
-	$(X41MICROBIANLDFLAGS) \
-	$^ -nostdlib \
-	-Wl,-Map,$*.map -lgcc -lc
-	arm-none-eabi-objdump -d $@ > disassembly.txt
 	$(SIZE) $@
 
 %.hex: %.elf
