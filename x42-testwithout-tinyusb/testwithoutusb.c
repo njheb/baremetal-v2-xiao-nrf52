@@ -96,12 +96,14 @@ static void main(int n)
     }
 }
 
+static unsigned char buf[64];
+
 void pong(int n)
 {
 	int count = 0;
 	while (1) {
 		timer_delay(40); 		//similarly short time
-        	printf("TEST %d\n", count++);
+        	printf("TEST %d %d\n", count++, sizeof(buf));
 		if ((count % 50) == 0)  	//0.5 seconds green
 			led_neo(GREEN);
 		else if ((count % 50) == 25) 	//0.5 seconds blue
