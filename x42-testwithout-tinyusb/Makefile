@@ -28,9 +28,12 @@ vpath %.h ../microbian
 #possible linker error
 #	$(CC) $(CPU) $(CFLAGS) -T ./XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+#	$(CC) $(CPU) $(CFLAGS) \
+#		-T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
+#		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(CC) $(CPU) $(CFLAGS) \
 		-T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
-		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
+		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map -Wl,-cref -Wl,-gc-sections -specs=nosys.specs -specs=nano.specs
 	$(SIZE) $@
 
 %.hex: %.elf
