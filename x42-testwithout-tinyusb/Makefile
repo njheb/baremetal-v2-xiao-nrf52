@@ -7,8 +7,8 @@ all: $(APPNAME).hex
 
 CC = arm-none-eabi-gcc
 CPU = -mcpu=cortex-m4 -mthumb
-CFLAGS = -O -g -Wall -ffreestanding
-INCLUDE = -I ../microbian
+CFLAGS = -O -g -Wall -ffreestanding -DCFG_TUSB_MCU=OPT_MCU_NRF5X
+INCLUDE = -I ../microbian -I ../../tinyusb/src -I ../../tinyusb/examples/device/cdc_XIAO_donor/src
 AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 SIZE = arm-none-eabi-size
@@ -22,7 +22,7 @@ vpath %.h ../microbian
 %.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-%.elf: %.o accel.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o accel.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 #possible linker error

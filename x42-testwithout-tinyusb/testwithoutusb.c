@@ -3,12 +3,15 @@
 
 #include "microbian.h"
 #include "hardware.h"
-#include "lib.h"
+//#include "lib.h"
 #include "accel.h"
 #include "PCF8563.h"
 
+
+#include "tusb.h"
 #define BUTTON_A  DEVPIN(0, 3)
 
+extern void usb_init(void);
 
 /* light -- show one pixel */
 void light(int x, int y)
@@ -126,6 +129,8 @@ void init(void)
 
     gpio_connect(BUTTON_A);
     gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+
+    usb_init();
 
 //noticed only actually running 1 task on breaking tinyusb code so replicate here
 //also grow stack same as tinyusb x41 

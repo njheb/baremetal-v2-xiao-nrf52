@@ -1,6 +1,8 @@
 /* common/startup.c */
 /* Copyright (c) 2018 J. M. Spivey */
 
+#define TINYUSBEXPT
+
 #include "hardware.h"
 
 /* init -- main program, creates application processes */
@@ -200,9 +202,6 @@ void spin(void)
 void default_handler(void) __attribute((weak, alias("spin")));
 
 #ifdef TINYUSBEXPT
-extern void POWER_CLOCK_IRQHandler(void);
-extern void USBD_IRQHandler(void);
-extern void UARTE1_IRQHandler(void);
 #endif
 
 /* The linker script makes all these handlers into weak aliases 
@@ -219,6 +218,8 @@ void pendsv_handler(void);
 void systick_handler(void);
 #ifndef TINYUSBEXPT
 void power_clock_handler(void);
+#else
+extern void POWER_CLOCK_IRQHandler(void);
 #endif
 void radio_handler(void);
 void uart0_handler(void);
@@ -260,7 +261,8 @@ void fpu_handler(void);
 void usbd_handler(void);
 void uart1_handler(void);
 #else
-
+extern void USBD_IRQHandler(void);
+extern void UARTE1_IRQHandler(void);
 #endif
 void pwm3_handler(void);
 void spi1_handler(void);
