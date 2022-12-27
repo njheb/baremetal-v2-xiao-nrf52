@@ -7,6 +7,10 @@
 #include "accel.h"
 #include "PCF8563.h"
 
+#define BUTTON_A  DEVPIN(0, 3)
+
+
+
 static void i2c_map(void)
 {
     static char *hex = "0123456789abcdef";
@@ -51,9 +55,23 @@ static void pong(int n)
 	unsigned v4 = TIMER4.STOP;
 	unsigned c4 = TIMER4.CC[0];
 
+        int count = 0;
+	int press = 0;
 	while(1){
-		yield();
-		led_neo(BLACK);
+	       timer_delay(40);
+	       count++;
+               if ((count % 50) == 0)          //0.5 seconds green
+                  led_neo(GREEN);
+               else if ((count % 50) == 25)    //0.5 seconds blue
+                  led_neo(BLUE);
+
+               if (gpio_in(BUTTON_A) == 0)
+	       {
+			press++;
+			if (press>=4)
+			{
+				press = 0;
+	                        led_pwr_on();           //add red on button press
 		printf("0:%d, %d, %d\n", c0, u0, v0);
 		printf("1:%d, %d, %d\n", c1, u1, v1);
 		printf("2:%d, %d, %d\n", c2, u2, v2); //TIMER2.CC[0]==1538
@@ -69,6 +87,15 @@ static void pong(int n)
 		printf("2:%d\n", TIMER2.START);
 		printf("3:%d\n", TIMER3.START);
 		printf("4:%d\n", TIMER4.START);
+			}
+	       }
+                else
+			{
+			press = 0;
+                        led_pwr_off();
+			}
+//		yield();
+//		led_neo(BLACK);
 	}
 }
 //all other values above are reported as 0
@@ -84,7 +111,7 @@ static void main(int n)
     printf("Hello\n\n");
     i2c_map();
     printf("\n");
-//    timer_delay(1000);
+    timer_delay(1000);
 //    accel_start();
   PCF8563__init();//initialize the clock
   PCF8563__stopClock();//stop the clock
@@ -99,17 +126,17 @@ static void main(int n)
     struct PCF8563_Time nT;
 
     while (1) {
-	    yield();
-	    led_neo(GREEN);
-//        timer_delay(500);
+//	    yield();
+//	    led_neo(GREEN);
+        timer_delay(60000);
 
 	    PCF8563__getTime(&nT);//get current time
 
-	    led_neo(BLUE);
+//	    led_neo(BLUE);
 //        timer_delay(500);
 
            printf("%d/%d/20%d %d:%d:%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
-	    led_neo(RED);
+//	    led_neo(RED);
 
 //        accel_reading(&x, &y, &z);
 //        printf("x=%d y=%d z=%d\n", x, y, z);
@@ -121,11 +148,16 @@ static void main(int n)
 void init(void)
 {
     serial_init();
-//    timer_init();
+    timer_init();
     i2c_init(I2C_EXTERNAL);
     led_init();
     led_neo(WHITE);
 //    display_init();
+
+    gpio_connect(BUTTON_A);
+    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+
+
     start("Pong", pong, 0, STACK);
     start("Main", main, 0, STACK);
 }
