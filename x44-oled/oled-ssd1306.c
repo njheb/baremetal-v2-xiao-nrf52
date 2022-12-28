@@ -61,10 +61,11 @@ void ssd1306_inverse_screen(void)
 
 //void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
 
-void ssd1306_draw_character(char character)
+void ssd1306_draw_character(char ch)
 {
 byte buffer[8] = {1,2,4,8,16,32,64,128};
-    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &buffer[0], 8);
+//    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &buffer[0], 8);
+    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &FONTS[ch-32][0], CHARS_COLS_LENGTH);
 }
 
 void ssd1306_clear_screen(void)

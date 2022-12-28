@@ -41,6 +41,7 @@ static void pong(int n)
 {
         int count = 0;
 	int press = 0;
+   byte ch = ' ';
 
     ssd1306_init();
 
@@ -57,8 +58,9 @@ static void pong(int n)
 			press++;
 			if (press>=4)
 			{
-			    ssd1306_draw_character('A');
-
+			    ssd1306_draw_character(ch);
+			    ch++;
+			    if (ch > '~') ch = ' '; 
 
 				press = 0;
 	                        led_pwr_on();           //add red on button press
