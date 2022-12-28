@@ -1,0 +1,137 @@
+#include "ssd1306.h"
+#include "microbian.h"
+#include "hardware.h"
+#include "lib.h"
+
+/*
+twi, char returned == TWI fail status or SUCCESS
+I:void TWI_Init(void)
+A:char TWI_MT_Start (void)
+W:char TWI_MT_Send_SLAW (char address) send address + write
+D:char TWI_MT_Send_Data (char data) send data
+R:char TWI_MR_Send_SLAR (char address) send address + read
+Z:void TWI_Stop (void)
+----------------------------------------------------------
+a:uint8_t SSD1306_Send_StartAndSLAW (uint8_t address) AW
+d:uint8_t SSD1306_Send_Command (uint8_t command)      Dc
+uint8_t SSD1306_Init (void)			      Iaddd...dZ
+uint8_t SSD1306_NormalScreen (void)		      adZ
+uint8_t SSD1306_InverseScreen (void)		      adZ
+uint8_t SSD1306_ClearScreen (void)		      asDDDDDDDD...DDDZ
+
+c Command
+s dataStream SSD1306_DATA_STREAM
+
+i2ctask WRITE ends with a STOP
+
+init
+====
+assume driver already inited
+probe done OK
+*/
+/*
+build a buffer of control bytes? then write
+
+void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
+{
+    byte buf1 = cmd;
+    int status = i2c_xfer(chan, WRITE, addr, &buf1, 1, buf2, n2);
+    assert(status == OK);
+}
+*/
+//modified to 
+void ssd1306_send_command(int chan, int addr, int val)
+{
+    byte buf1 = SSD1306_COMMAND;
+    byte buf2 = val;
+    int status = i2c_xfer(chan, WRITE, addr, &buf1, 1, &buf2, 1);
+    assert(status == OK);
+}
+
+
+void ssd1306_normal_screen(void)
+{
+    ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_NORMAL);
+}
+
+void ssd1306_inverse_screen(void)
+{
+    ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_INVERSE);
+}
+
+//void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
+
+void ssd1306_draw_character(char character)
+{
+byte buffer[8] = {1,2,4,8,16,32,64,128};
+    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &buffer[0], 8);
+}
+
+void ssd1306_clear_screen(void)
+{
+//would need to have a buffer or modify i2c driver to use stream
+//for now position cursor and write space
+}
+
+
+
+
+
+const byte INIT_SSD1306[] = {
+  18,                                                             // number of initializers
+  0, SSD1306_DISPLAY_OFF,                                         // 0xAE = Set Display OFF
+  1, SSD1306_SET_MUX_RATIO, 63,                                   // 0xA8 - 64MUX for 128 x 64 version
+                                                                  //      - 32MUX for 128 x 32 version
+  1, SSD1306_MEMORY_ADDR_MODE, 0x00,                              // 0x20 = Set Memory Addressing Mode
+                                                                  // 0x00 - Horizontal Addressing Mode
+                                                                  // 0x01 - Vertical Addressing Mode
+                                                                  // 0x02 - Page Addressing Mode (RESET)
+  2, SSD1306_SET_COLUMN_ADDR, START_COLUMN_ADDR, END_COLUMN_ADDR, // 0x21 = Set Column Address, 0 - 127
+  2, SSD1306_SET_PAGE_ADDR, START_PAGE_ADDR, END_PAGE_ADDR,       // 0x22 = Set Page Address, 0 - 7
+  0, SSD1306_SET_START_LINE,                                      // 0x40
+  1, SSD1306_DISPLAY_OFFSET, 0x00,                                // 0xD3
+  0, SSD1306_SEG_REMAP_OP,                                        // 0xA0 / remap 0xA1
+  0, SSD1306_COM_SCAN_DIR_OP,                                     // 0xC0 / remap 0xC8
+  1, SSD1306_COM_PIN_CONF, 0x12,                                  // 0xDA, 0x12 - Disable COM Left/Right remap, Alternative COM pin configuration
+                                                                  //       0x12 - for 128 x 64 version
+                                                                  //       0x02 - for 128 x 32 version
+  1, SSD1306_SET_CONTRAST, 0x7F,                                  // 0x81, 0x7F - reset value (max 0xFF)
+  0, SSD1306_DIS_ENT_DISP_ON,                                     // 0xA4
+  0, SSD1306_DIS_NORMAL,                                          // 0xA6
+  1, SSD1306_SET_OSC_FREQ, 0x80,                                  // 0xD5, 0x80 => D=1; DCLK = Fosc / D <=> DCLK = Fosc
+  1, SSD1306_SET_PRECHARGE, 0xc2,                                 // 0xD9, higher value less blinking
+                                                                  // 0xC2, 1st phase = 2 DCLK,  2nd phase = 13 DCLK
+  1, SSD1306_VCOM_DESELECT, 0x20,                                 // Set V COMH Deselect, reset value 0x22 = 0,77xUcc
+  1, SSD1306_SET_CHAR_REG, 0x14,                                  // 0x8D, Enable charge pump during display on
+  0, SSD1306_DISPLAY_ON                                           // 0xAF = Set Display ON
+};
+
+byte init_buffer[(18+13)*2];
+
+void ssd1306_init(void)
+{
+  int status;
+
+  const byte *commands = INIT_SSD1306;
+  byte no_of_commands = *commands++;
+
+  int idx=0;
+  printf("number of commands= %d", no_of_commands);
+
+  while (no_of_commands--)
+  {
+  	byte no_of_arguments = *commands++;
+
+  	do {
+  		init_buffer[idx++] = SSD1306_COMMAND;
+  		init_buffer[idx++] = *commands++;
+  	} while (no_of_arguments--);
+
+  }
+  printf("size %d", sizeof(init_buffer));
+  assert(sizeof(init_buffer) == (18+13)*2);
+
+
+  status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &init_buffer[0], sizeof(init_buffer), NULL, 0);
+  assert(status == OK);
+}
