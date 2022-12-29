@@ -45,8 +45,8 @@ static void pong(int n)
 	int press = 0;
    byte ch = ' ';
 
-    alt_ssd1306_init();
-    ssd1306_clear_screen();
+    ssd1306_init();
+    ssd1306_clear_screenX();
 
     ssd1306_set_position(20,4);
     ssd1306_draw_string("Hello World!");
@@ -66,7 +66,10 @@ static void pong(int n)
 			if (press>=4)
 			{
 			    int status = ssd1306_draw_character(ch);
-                            if (status != OK) ssd1306_set_position(0, 0);
+                            if (status != OK) {
+				ssd1306_set_position(0, 0);
+                                ssd1306_clear_screen();
+                            }
 			    ch++;
 			    if (ch > '~') ch = ' '; 
 
