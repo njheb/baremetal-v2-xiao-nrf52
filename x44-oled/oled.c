@@ -45,7 +45,7 @@ static void pong(int n)
 	int press = 0;
    byte ch = ' ';
 
-    ssd1306_init();
+    alt_ssd1306_init();
     ssd1306_clear_screen();
 
     ssd1306_set_position(20,4);

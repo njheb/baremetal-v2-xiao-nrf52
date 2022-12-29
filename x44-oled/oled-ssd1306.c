@@ -102,6 +102,34 @@ int ssd1306_clear_screen(void)
 
 
 
+const byte INIT_SSD1306_STREAM[] = {
+   SSD1306_DISPLAY_OFF,                                         // 0xAE = Set Display OFF
+   SSD1306_SET_MUX_RATIO, 63,                                   // 0xA8 - 64MUX for 128 x 64 version
+                                                                  //      - 32MUX for 128 x 32 version
+   SSD1306_MEMORY_ADDR_MODE, 0x00,                              // 0x20 = Set Memory Addressing Mode
+                                                                  // 0x00 - Horizontal Addressing Mode
+                                                                  // 0x01 - Vertical Addressing Mode
+                                                                  // 0x02 - Page Addressing Mode (RESET)
+   SSD1306_SET_COLUMN_ADDR, START_COLUMN_ADDR, END_COLUMN_ADDR, // 0x21 = Set Column Address, 0 - 127
+   SSD1306_SET_PAGE_ADDR, START_PAGE_ADDR, END_PAGE_ADDR,       // 0x22 = Set Page Address, 0 - 7
+   SSD1306_SET_START_LINE,                                      // 0x40
+   SSD1306_DISPLAY_OFFSET, 0x00,                                // 0xD3
+   SSD1306_SEG_REMAP_OP,                                        // 0xA0 / remap 0xA1
+   SSD1306_COM_SCAN_DIR_OP,                                     // 0xC0 / remap 0xC8
+   SSD1306_COM_PIN_CONF, 0x12,                                  // 0xDA, 0x12 - Disable COM Left/Right remap, Alternative COM pin configuration
+                                                                  //       0x12 - for 128 x 64 version
+                                                                  //       0x02 - for 128 x 32 version
+   SSD1306_SET_CONTRAST, 0x7F,                                  // 0x81, 0x7F - reset value (max 0xFF)
+   SSD1306_DIS_ENT_DISP_ON,                                     // 0xA4
+   SSD1306_DIS_NORMAL,                                          // 0xA6
+   SSD1306_SET_OSC_FREQ, 0x80,                                  // 0xD5, 0x80 => D=1; DCLK = Fosc / D <=> DCLK = Fosc
+   SSD1306_SET_PRECHARGE, 0xc2,                                 // 0xD9, higher value less blinking
+                                                                  // 0xC2, 1st phase = 2 DCLK,  2nd phase = 13 DCLK
+   SSD1306_VCOM_DESELECT, 0x20,                                 // Set V COMH Deselect, reset value 0x22 = 0,77xUcc
+   SSD1306_SET_CHAR_REG, 0x14,                                  // 0x8D, Enable charge pump during display on
+   SSD1306_DISPLAY_ON                                           // 0xAF = Set Display ON
+};
+
 const byte INIT_SSD1306[] = {
   18,                                                             // number of initializers
   0, SSD1306_DISPLAY_OFF,                                         // 0xAE = Set Display OFF
@@ -156,8 +184,26 @@ void ssd1306_init(void)
   printf("size %d", sizeof(init_buffer));
   assert(sizeof(init_buffer) == (18+13)*2);
 
-  while (i2c_probe(I2C_EXTERNAL, SSD1306_ADDR) != OK){;}
+  while (i2c_probe(I2C_EXTERNAL, SSD1306_ADDR) != OK){yield();}
   status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &init_buffer[0], sizeof(init_buffer), NULL, 0);
+  assert(status == OK);
+}
+
+
+
+void alt_ssd1306_init(void)
+{
+  int status;
+
+  byte cmd = SSD1306_COMMAND_STREAM;
+  byte *pCommands = (byte*) INIT_SSD1306_STREAM;
+  //byte no_of_commands = *commands++;
+
+  //int idx=0;
+  //printf("number of commands= %d", no_of_commands);
+
+  while (i2c_probe(I2C_EXTERNAL, SSD1306_ADDR) != OK){yield();}
+  status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &cmd, 1, pCommands, sizeof(INIT_SSD1306_STREAM));
   assert(status == OK);
 }
 
