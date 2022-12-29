@@ -48,7 +48,7 @@ static void pong(int n)
     ssd1306_init();
     ssd1306_clear_screen();
 
-    ssd1306_set_position(20,0);
+    ssd1306_set_position(20,4);
     ssd1306_draw_string("Hello World!");
 
 

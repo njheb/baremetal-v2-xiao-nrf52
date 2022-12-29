@@ -156,7 +156,7 @@ void ssd1306_init(void)
   printf("size %d", sizeof(init_buffer));
   assert(sizeof(init_buffer) == (18+13)*2);
 
-
+  while (i2c_probe(I2C_EXTERNAL, SSD1306_ADDR) != OK){;}
   status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &init_buffer[0], sizeof(init_buffer), NULL, 0);
   assert(status == OK);
 }
