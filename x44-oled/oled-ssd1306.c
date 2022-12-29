@@ -39,39 +39,63 @@ void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
     assert(status == OK);
 }
 */
-//modified to 
-void ssd1306_send_command(int chan, int addr, int val)
+//modified to
+
+unsigned short int _indexCol = START_COLUMN_ADDR;
+unsigned short int _indexPage = START_PAGE_ADDR;
+
+
+
+
+int ssd1306_send_data(int chan, int addr, byte* pdata, int len)
+{
+    byte buf1 = SSD1306_DATA_STREAM;
+    int status = i2c_xfer(chan, WRITE, addr, &buf1, 1, pdata, len);
+    assert(status == OK);
+
+    return status;
+}
+
+int ssd1306_send_command(int chan, int addr, int val)
 {
     byte buf1 = SSD1306_COMMAND;
     byte buf2 = val;
     int status = i2c_xfer(chan, WRITE, addr, &buf1, 1, &buf2, 1);
     assert(status == OK);
+
+    return status;
 }
 
 
-void ssd1306_normal_screen(void)
+int ssd1306_normal_screen(void)
 {
-    ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_NORMAL);
+    return ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_NORMAL);
 }
 
-void ssd1306_inverse_screen(void)
+int ssd1306_inverse_screen(void)
 {
-    ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_INVERSE);
+    return ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_INVERSE);
 }
 
 //void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
 
-void ssd1306_draw_character(char ch)
+int ssd1306_clear_screen(void)
 {
-byte buffer[8] = {1,2,4,8,16,32,64,128};
-//    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &buffer[0], 8);
-    i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &FONTS[ch-32][0], CHARS_COLS_LENGTH);
-}
+    int status;
 
-void ssd1306_clear_screen(void)
-{
-//would need to have a buffer or modify i2c driver to use stream
-//for now position cursor and write space
+    byte buf1 = SSD1306_DATA_STREAM;
+    byte buffer[8] = {1|128,2|64,4|32,8|16,16|8,32|4,64|2,128|1};
+    int i,j;
+
+    for (i = 0; i < RAM_Y_END ; i++)
+        for (j = 0; j < RAM_X_END; j++)
+	{
+            status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &buf1, 1, &buffer[0], 8);
+            if (status != OK) return status;
+        }
+           // i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &buffer[0], 8);
+
+    return OK;
 }
 
 
@@ -135,4 +159,84 @@ void ssd1306_init(void)
 
   status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &init_buffer[0], sizeof(init_buffer), NULL, 0);
   assert(status == OK);
+}
+
+static int ssd1306_set_window(byte x1, byte x2, byte y1, byte y2)
+{
+    int status;
+
+	byte window_buffer[12];
+        for (int i = 0; i < sizeof(window_buffer); i+=2)
+	   window_buffer[i] = SSD1306_COMMAND;
+
+        window_buffer[1] = SSD1306_SET_COLUMN_ADDR;
+	window_buffer[3] = x1;
+	window_buffer[5] = x2;
+	window_buffer[7] = SSD1306_SET_PAGE_ADDR;
+	window_buffer[9] = y1;
+	window_buffer[11] = y2;
+
+	status = i2c_xfer(I2C_EXTERNAL, WRITE, SSD1306_ADDR, &window_buffer[0], sizeof(window_buffer), NULL, 0);
+        assert(status == OK);
+
+	_indexCol = x1;
+	_indexPage = y1;
+
+	return status;
+}
+
+int ssd1306_set_position(byte x, byte y)
+{
+   return ssd1306_set_window(x, END_COLUMN_ADDR, y, END_PAGE_ADDR);
+}
+
+static int ssd1306_update_position(byte x, byte p)
+{
+   int status;
+
+   if (x > END_COLUMN_ADDR) {
+      if (p < END_PAGE_ADDR) {
+         _indexCol = 0;
+         _indexPage++;
+         status = ssd1306_set_position(_indexCol, _indexPage);
+         if (status != OK) return status;
+      }
+      else
+         return SSD1306_ERROR; //last page reached
+   }
+
+   return OK;
+}
+
+int ssd1306_draw_character(char ch)
+{
+    int status;
+    byte* pdata = (byte*)&FONTS[ch-32][0];
+    byte kern = 0;
+
+    status = ssd1306_update_position(_indexCol + CHARS_COLS_LENGTH, _indexPage);
+    if (status != OK) return status;
+
+//    status = i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &FONTS[ch-32][0], CHARS_COLS_LENGTH);
+    status = ssd1306_send_data(I2C_EXTERNAL, SSD1306_ADDR, pdata, CHARS_COLS_LENGTH);
+    if (status != OK) return status;
+    _indexCol += CHARS_COLS_LENGTH;
+
+//    status = i2c_write_bytes(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DATA_STREAM,  &FONTS[0][0], 1);
+    status = ssd1306_send_data(I2C_EXTERNAL, SSD1306_ADDR, &kern, 1);
+
+    _indexCol++;
+
+    return status;
+
+}
+
+int ssd1306_draw_string(char *str)
+{
+   int status = OK;
+
+   while ((*str != '\0') && (status == OK))
+      status = ssd1306_draw_character(*str++);
+
+   return status;
 }

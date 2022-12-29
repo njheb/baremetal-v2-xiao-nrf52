@@ -23,11 +23,6 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
-  // includes
-//  #include <avr/pgmspace.h>
-//##include "microbian.h"
-
-
   // Characters definition
   // -----------------------------------
   // number of columns for chars

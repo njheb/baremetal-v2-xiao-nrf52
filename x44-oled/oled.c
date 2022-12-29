@@ -39,11 +39,18 @@ static void i2c_map(void)
 
 static void pong(int n)
 {
+
+
         int count = 0;
 	int press = 0;
    byte ch = ' ';
 
     ssd1306_init();
+    ssd1306_clear_screen();
+
+    ssd1306_set_position(20,0);
+    ssd1306_draw_string("Hello World!");
+
 
 	while(1){
 	       timer_delay(40);
@@ -58,7 +65,8 @@ static void pong(int n)
 			press++;
 			if (press>=4)
 			{
-			    ssd1306_draw_character(ch);
+			    int status = ssd1306_draw_character(ch);
+                            if (status != OK) ssd1306_set_position(0, 0);
 			    ch++;
 			    if (ch > '~') ch = ' '; 
 
