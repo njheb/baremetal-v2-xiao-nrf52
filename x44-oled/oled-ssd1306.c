@@ -168,14 +168,8 @@ int ssd1306_init(void)
 static int ssd1306_set_window(byte x1, byte x2, byte y1, byte y2)
 {
     int status;
-    byte window_buffer[6];
-
-    window_buffer[0] = SSD1306_SET_COLUMN_ADDR;
-    window_buffer[1] = x1;
-    window_buffer[2] = x2;
-    window_buffer[3] = SSD1306_SET_PAGE_ADDR;
-    window_buffer[4] = y1;
-    window_buffer[5] = y2;
+    byte window_buffer[6] = {SSD1306_SET_COLUMN_ADDR, x1, x2,
+                             SSD1306_SET_PAGE_ADDR,   y1, y2};
 
     status = ssd1306_send_command_stream(I2C_EXTERNAL, SSD1306_ADDR, window_buffer, sizeof(window_buffer));
     assert(status == OK);
