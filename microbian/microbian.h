@@ -1,3 +1,5 @@
+#ifndef MICROBIAN_H
+#define MICROBIAN_H
 /* microbian.h */
 /* Copyright (c) 2018 J. M. Spivey */
 
@@ -132,3 +134,4 @@ void display_init(void);
 extern const unsigned blank[];
 void image_clear(unsigned *img);
 void image_set(int x, int y, unsigned *img);
+#endif

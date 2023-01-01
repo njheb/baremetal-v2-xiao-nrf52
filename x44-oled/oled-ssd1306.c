@@ -231,9 +231,10 @@ int ssd1306_draw_string(char *str)
 static void oled_task(int target_task)
 {
      int status;
-    /*without moding microbian no way of telling if I2C task is running*/
+    /*Without moding microbian no way of telling if I2C task is already running*/
+    /*However, i2c_init is designed so that no harm in calling if already setup*/
 
-     i2c_init(I2C_EXTERNAL); /*However, no harm in calling if already setup*/
+     i2c_init(I2C_EXTERNAL);
 
      while (1) {
         status = ssd1306_start();
@@ -251,9 +252,10 @@ static void oled_task(int target_task)
 
 }
 
-void ssd1306_init(volatile int *flag)
+void ssd1306_init(int target_task)
 {
    //exit after getting setup and clearing screen
-   start("Oled", oled_task, (int)flag, 256);
+   //message target task before exiting
+   start("Oled", oled_task, target_task, 256);
 }
 

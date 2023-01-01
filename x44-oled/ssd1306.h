@@ -25,10 +25,9 @@
 #define __SSD1306_H__
 
   // includes
+#include "microbian.h"
   #include "font.h"
 //  #include "twi.h"
-
-#define OLED_READY 888 /*microbian message number for oled_task complete*/
 
   // Success / Error
   // ------------------------------------------------------------------------------------
@@ -93,117 +92,24 @@
   #define MAX_X                     END_COLUMN_ADDR
   #define MAX_Y                     (END_PAGE_ADDR + 1) * 8
 
-  // @enum
-  enum E_Font {
-    NORMAL = 0x00,
-    BOLD = 0x01,
-    UNDERLINE = 0x10
-  };
+int ssd1306_off(void);
+int ssd1306_on(void);
+int ssd1306_normal_screen(void);
+int ssd1306_inverse_screen(void);
 
-#if 0
-  /**
-   * @desc    SSD1306 Send Start and SLAW request
-   *
-   * @param   uint8_t
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_Send_StartAndSLAW (uint8_t);
+int ssd1306_clear_screenX(void);
+int ssd1306_clear_screen(void);
 
-  /**
-   * @desc    SSD1306 Send command
-   *
-   * @param   uint8_t
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_Send_Command (uint8_t);
+int ssd1306_start(void);
+int ssd1306_set_position(byte x, byte y);
+int ssd1306_draw_character(char ch);
+int ssd1306_draw_string(char *str);
 
-  /**
-   * @desc    SSD1306 Init
-   *
-   * @param   void
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_Init (void);
+//wrapper idea for ssd1306_start
+#define OLED_READY 543 /*microbian message number for oled_task complete*/
+void ssd1306_init(int target_task);
 
-  /**
-   * @desc    SSD1306 Clear screen
-   *
-   * @param   void
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_ClearScreen (void);
 
-  /**
-   * @desc    SSD1306 Normal colors
-   *
-   * @param   void
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_NormalScreen (void);
 
-  /**
-   * @desc    SSD1306 Inverse colors
-   *
-   * @param   void
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_InverseScreen (void);
-
-  /**
-   * @desc    SSD1306 Update text position
-   *
-   * @param   void
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_UpdatePosition (uint8_t, uint8_t);
-
-  /**
-   * @desc    SSD1306 Set position
-   *
-   * @param   uint8_t
-   * @param   uint8_t
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_SetPosition (uint8_t, uint8_t);
-
-  /**
-   * @desc    SSD1306 Set window
-   *
-   * @param   uint8_t column -> 0 ... 127
-   * @param   uint8_t column -> 0 ... 127
-   * @param   uint8_t page -> 0 ... 7
-   * @param   uint8_t page -> 0 ... 7
-   *
-   * @return  void
-   */
-  uint8_t SSD1306_SetWindow (uint8_t, uint8_t, uint8_t, uint8_t);
-
-  /**
-   * @desc    SSD1306 Draw character
-   *
-   * @param   char
-   * @param   enum E_Font
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_DrawChar (char, enum E_Font);
-
-  /**
-   * @desc    SSD1306 Draw string
-   *
-   * @param   char *
-   *
-   * @return  uint8_t
-   */
-  uint8_t SSD1306_DrawString (char *, enum E_Font);
-#endif
 
 #endif
