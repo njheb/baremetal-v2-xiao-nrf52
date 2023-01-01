@@ -40,7 +40,7 @@ static void i2c_map(void)
 
 static void pong(int n)
 {
-
+    int toggle = 0;
 
         int count = 0;
 	int press = 0;
@@ -53,6 +53,9 @@ static void pong(int n)
 
     ssd1306_set_position(20,4);
     ssd1306_draw_string("Hello World!");
+    ssd1306_draw_string(" ! ! ! ! ! !");
+    ssd1306_draw_string("! ! ! ! ! ! ");
+    
 
 
 	while(1){
@@ -68,14 +71,25 @@ static void pong(int n)
 			press++;
 			if (press>=4)
 			{
-			    int status = ssd1306_draw_character(ch);
+                            toggle = !toggle;
+			    if (toggle) 
+				ssd1306_off();
+                            else
+                            	ssd1306_on();
+
+			    int status = ssd1306_draw_character('0'+toggle);
+                 
+
+			    status = ssd1306_draw_character(ch);
+                          
                             if (status != OK) {
 				ssd1306_set_position(0, 0);
                                 ssd1306_clear_screen();
                             }
 			    ch++;
 			    if (ch > '~') ch = ' '; 
-
+                            
+ 
 				press = 0;
 	                        led_pwr_on();           //add red on button press
 			}
