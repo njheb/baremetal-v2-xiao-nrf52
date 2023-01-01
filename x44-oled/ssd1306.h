@@ -28,6 +28,8 @@
   #include "font.h"
 //  #include "twi.h"
 
+#define OLED_READY 888 /*microbian message number for oled_task complete*/
+
   // Success / Error
   // ------------------------------------------------------------------------------------
   #define SSD1306_SUCCESS           0

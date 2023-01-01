@@ -227,30 +227,28 @@ int ssd1306_draw_string(char *str)
    return status;
 }
 
-//volatile int ssd1306_inited = 0;
 
-static void oled_task(int flag)
+static void oled_task(int target_task)
 {
      int status;
-     volatile int *inited = (volatile int *) flag;
     /*without moding microbian no way of telling if I2C task is running*/
 
      i2c_init(I2C_EXTERNAL); /*However, no harm in calling if already setup*/
 
      while (1) {
-
-        while (*inited == 0) {
-           status = ssd1306_start();
-           if (status != OK)
-              yield(); //not strictly necessary as context switch happen in ssd1306 calls
-           else {
-              status = ssd1306_clear_screenX();
-              if (status == OK) *inited = 1;
+        status = ssd1306_start();
+        if (status != OK)
+           yield();
+        else {
+           status = ssd1306_clear_screenX();
+           if (status == OK) {
+              if (target_task != 0)
+	         send(target_task, OLED_READY, NULL);
+              exit();
            }
         }
-     exit();
-
      }
+
 }
 
 void ssd1306_init(volatile int *flag)

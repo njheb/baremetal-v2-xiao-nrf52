@@ -6,11 +6,11 @@
 #include "lib.h"
 #include "accel.h"
 #include "PCF8563.h"
+#include "ssd1306.h"
 
 #define BUTTON_A  DEVPIN(0, 3)
 
-volatile int ssd1306_inited = 0;
-
+static int OLED_TARGET;
 
 static void i2c_map(void)
 {
@@ -47,7 +47,8 @@ static void pong(int n)
    byte ch = ' ';
 
 //    ssd1306_start();
-    while (ssd1306_inited == 0){yield();}
+//    while (ssd1306_inited == 0){yield();}
+    receive(OLED_READY, NULL);
 
     ssd1306_clear_screen();
 
@@ -156,12 +157,13 @@ void init(void)
     led_init();
     led_neo(WHITE);
 //    display_init();
-    ssd1306_init((volatile int *)&ssd1306_inited);
 
     gpio_connect(BUTTON_A);
     gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
 
 
-    start("Pong", pong, 0, STACK);
+    OLED_TARGET = start("Pong", pong, 0, STACK);
+    ssd1306_init(OLED_TARGET);
+
     start("Main", main, 0, STACK);
 }
