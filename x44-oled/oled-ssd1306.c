@@ -1,7 +1,18 @@
+/*
+2023Jan01 Nick Hebdon
+Code based on SSD1306 avr library by Matiasus
+https://github.com/Matiasus/SSD1306
+tag "v3.0.0" 8ca673c
+
+For use this SeeedStudio Expansion Board
+*/
+
 #include "ssd1306.h"
 #include "microbian.h"
 #include "hardware.h"
 #include "lib.h"
+
+//static int OLED_TASK;
 
 unsigned short int _indexCol = START_COLUMN_ADDR;
 unsigned short int _indexPage = START_PAGE_ADDR;
@@ -14,7 +25,6 @@ static int ssd1306_send_command_stream(int chan, int addr, byte* pCommands, int 
   assert(status == OK);
   return status;
 }
-
 
 static int ssd1306_send_data_stream(int chan, int addr, byte* pdata, int len)
 {
@@ -45,6 +55,15 @@ static int ssd1306_send_data(int chan, int addr, int val)
     return status;
 }
 
+int ssd1306_off(void)
+{
+    return ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DISPLAY_OFF);
+}
+
+int ssd1306_on(void)
+{
+    return ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DISPLAY_ON);
+}
 
 int ssd1306_normal_screen(void)
 {
@@ -55,8 +74,6 @@ int ssd1306_inverse_screen(void)
 {
     return ssd1306_send_command(I2C_EXTERNAL, SSD1306_ADDR, SSD1306_DIS_INVERSE);
 }
-
-//void i2c_write_bytes(int chan, int addr, int cmd, byte *buf2, int n2)
 
 int ssd1306_clear_screenX(void)
 {
@@ -92,10 +109,6 @@ int ssd1306_clear_screen(void)
     return OK;
 }
 
-
-
-
-
 const byte INIT_SSD1306_STREAM[] = {
    SSD1306_DISPLAY_OFF,                                         // 0xAE = Set Display OFF
    SSD1306_SET_MUX_RATIO, 63,                                   // 0xA8 - 64MUX for 128 x 64 version
@@ -124,14 +137,24 @@ const byte INIT_SSD1306_STREAM[] = {
    SSD1306_DISPLAY_ON                                           // 0xAF = Set Display ON
 };
 
+/*
+Patterned on accel.c of x18-level as we can't probe before tasks running
+unless we write a separate pre-task TWI to allow probe and setup
+hence name xxx_start() rather than xxx_init().
 
-int ssd1306_init(void)
+Given the heavy weigth of context switches needed to interact with the ssd1306
+there would be no real harm in adding a driver wrapper.
+
+*/
+
+int ssd1306_start(void)
 {
   int status;
 
   byte *pCommands = (byte*) INIT_SSD1306_STREAM;
 
-  while (i2c_probe(I2C_EXTERNAL, SSD1306_ADDR) != OK){yield();}
+  status = i2c_probe(I2C_EXTERNAL, SSD1306_ADDR);
+  if (status != OK) return status;
 
   status = ssd1306_send_command_stream(I2C_EXTERNAL, SSD1306_ADDR, pCommands, sizeof(INIT_SSD1306_STREAM) );
   return status;
@@ -179,7 +202,6 @@ int ssd1306_draw_character(char ch)
 {
     int status;
     byte* pdata = (byte*)&FONTS[ch-32][0];
-//    byte kern = 0;
 
     status = ssd1306_update_position(_indexCol + CHARS_COLS_LENGTH, _indexPage);
     if (status != OK) return status;
@@ -188,7 +210,6 @@ int ssd1306_draw_character(char ch)
     if (status != OK) return status;
     _indexCol += CHARS_COLS_LENGTH;
 
-//    status = ssd1306_send_data_stream(I2C_EXTERNAL, SSD1306_ADDR, &kern, 1);
     status = ssd1306_send_data(I2C_EXTERNAL, SSD1306_ADDR, 0);
 
     _indexCol++;
@@ -205,3 +226,36 @@ int ssd1306_draw_string(char *str)
 
    return status;
 }
+
+//volatile int ssd1306_inited = 0;
+
+static void oled_task(int flag)
+{
+     int status;
+     volatile int *inited = (volatile int *) flag;
+    /*without moding microbian no way of telling if I2C task is running*/
+
+     i2c_init(I2C_EXTERNAL); /*However, no harm in calling if already setup*/
+
+     while (1) {
+
+        while (*inited == 0) {
+           status = ssd1306_start();
+           if (status != OK)
+              yield(); //not strictly necessary as context switch happen in ssd1306 calls
+           else {
+              status = ssd1306_clear_screenX();
+              if (status == OK) *inited = 1;
+           }
+        }
+     exit();
+
+     }
+}
+
+void ssd1306_init(volatile int *flag)
+{
+   //exit after getting setup and clearing screen
+   start("Oled", oled_task, (int)flag, 256);
+}
+

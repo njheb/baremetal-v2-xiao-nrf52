@@ -9,6 +9,7 @@
 
 #define BUTTON_A  DEVPIN(0, 3)
 
+volatile int ssd1306_inited = 0;
 
 
 static void i2c_map(void)
@@ -45,8 +46,10 @@ static void pong(int n)
 	int press = 0;
    byte ch = ' ';
 
-    ssd1306_init();
-    ssd1306_clear_screenX();
+//    ssd1306_start();
+    while (ssd1306_inited == 0){yield();}
+
+    ssd1306_clear_screen();
 
     ssd1306_set_position(20,4);
     ssd1306_draw_string("Hello World!");
@@ -139,6 +142,7 @@ void init(void)
     led_init();
     led_neo(WHITE);
 //    display_init();
+    ssd1306_init((volatile int *)&ssd1306_inited);
 
     gpio_connect(BUTTON_A);
     gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
