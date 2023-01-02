@@ -109,7 +109,7 @@ argument to be a macro that expands the a 'position, width' pair. */
 #define PAD10 DEVPIN(1, 15)
 #endif
 
-
+//PWR_LED is on schematic but is not connected
 #define PWR_LED   DEVPIN(1, 6)
 
 /*Neopixel, set pin low to turn on*/
