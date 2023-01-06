@@ -95,18 +95,39 @@ static void pong(int n)
                else if ((count % 50) == 25)    //0.5 seconds blue
                   led_neo(BLUE);
 
+
+               if ((first_press == 1) && ((count % 10) == 0))
+               {
+                 char buffer[24]="";
+		 short count = adc_reading(A0);
+                 int decidegree = 3000*count/(680-count);
+                 sprintf(buffer, "c=%d %d    ", count, decidegree);
+                 ssd1306_set_position(0, 7);
+                 ssd1306_draw_string(buffer);
+               }
+
                if (gpio_in(BUTTON_A) == 0)
 	       {
 			press++;
 			if (press>=4)
 			{
+
+                            if (first_press == 1)
+                            {
+                                first_press = 2;
+                                ssd1306_set_position(0,7);
+                                ssd1306_draw_string("                     ");
+			        maxy = 7;
+                            }
+
                             if (first_press == 0)
                             {
                                 first_press = 1;
                                 ssd1306_set_position(0,7);
                                 ssd1306_draw_string("                     ");
-			        maxy = 7;
+			        maxy = 6;
                             }
+
                             /*blank out ball and re init*/
                             draw_pingpong(xp, yp, ' ');
                             init_pingpong_vars();
@@ -176,6 +197,7 @@ void init(void)
     timer_init();
 
     pwm_init();
+    adc_init();
 
     i2c_init(I2C_EXTERNAL);
     led_init();

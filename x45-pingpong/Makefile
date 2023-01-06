@@ -22,7 +22,7 @@ vpath %.h ../microbian
 %.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-%.elf: %.o pwm.o oled-ssd1306.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o adc.o pwm.o oled-ssd1306.o PCF8563.o ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 #possible linker error
@@ -56,6 +56,6 @@ clean:
 
 ###
 
-pingpong.o: accel.h hardware.h lib.h microbian.h
+pingpong.o: adc.h pwm.h ssd1306.h ssd1306.h PCF8563.h hardware.h lib.h microbian.h
 oled-ssd1306.o: ssd1306.h font.h microbian.h
 PCF8563.o: PCF8563.h microbian.h
