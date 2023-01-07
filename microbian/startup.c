@@ -1,7 +1,7 @@
 /* common/startup.c */
 /* Copyright (c) 2018 J. M. Spivey */
 
-//#define TINYUSBEXPT
+#define TINYUSBEXPT
 
 #include "hardware.h"
 

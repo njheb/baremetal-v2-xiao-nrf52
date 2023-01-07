@@ -63,6 +63,7 @@ static void i2c_map(void)
 static void main(int n)
 {
     int x, y, z;
+    int count = 0;
 
     printf("Hello\n\n");
     i2c_map();
@@ -90,6 +91,7 @@ static void main(int n)
 	    led_neo(BLUE);
         timer_delay(500);
 
+        if (count++ % 60 == 0)
         printf("%d/%d/20%d %d:%d:%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
 
 //        accel_reading(&x, &y, &z);
@@ -106,7 +108,7 @@ void pong(int n)
 	int count = 0;
 	while (1) {
 		timer_delay(40); 		//similarly short time
-        	printf("TEST %d %d\n", count++, sizeof(buf));
+        	//printf("TEST %d %d\n", count++, sizeof(buf));
 		if ((count % 50) == 0)  	//0.5 seconds green
 			led_neo(GREEN);
 		else if ((count % 50) == 25) 	//0.5 seconds blue
@@ -130,7 +132,7 @@ void init(void)
     gpio_connect(BUTTON_A);
     gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
 
-    usb_init();
+//was probably left in in oversight    usb_init();
 
 //noticed only actually running 1 task on breaking tinyusb code so replicate here
 //also grow stack same as tinyusb x41 

@@ -1,7 +1,7 @@
 # x18/Makefile
 # Copyright (c) 2020-21 J. M. Spivey
 
-APPNAME = testwithoutusb
+APPNAME = testing
 
 all: $(APPNAME).hex
 
@@ -56,13 +56,13 @@ vpath %.h ../microbian
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map -Wl,-cref -Wl,-gc-sections -specs=nosys.specs -specs=nano.specs
-	$(SIZE) $@
 
 #	$(CC) -o $@ \
 #	$(X41MICROBIANLDFLAGS) \
 #	$^ \
 #	-Wl,--start-group -lgcc -lm -lnosys -lc -Wl,--end-group
 #	arm-none-eabi-objdump -d $@ > disassembly.txt
+	$(SIZE) $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $< $@
