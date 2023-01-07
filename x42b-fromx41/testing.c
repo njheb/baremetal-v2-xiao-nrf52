@@ -161,6 +161,10 @@ static void cdc_task(void)
 
 void init(void)
 {
+    void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
+    __asm__ __volatile__("" :: "m" (workaroundlinkage));
+    workaroundlinkage = &usb_init;
+
     serial_init();
     timer_init();
     i2c_init(I2C_EXTERNAL);
@@ -173,8 +177,10 @@ void init(void)
     gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
 
 //leave outside force on so linkage can pick up ISRs
-    usb_init(); //call to what was tinyusb board_init before it was hacked
+// call with usb_init() caused HardFault
 #ifdef FORCEON
+    usb_init(); //call to what was tinyusb board_init before it was hacked
+
     // init device stack on configured roothub port
     tud_init(BOARD_TUD_RHPORT);
 #endif
