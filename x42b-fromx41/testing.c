@@ -16,7 +16,11 @@
 static void cdc_task(void);
 #define BUTTON_A  DEVPIN(0, 3)
 
-extern void usb_init(void); 
+extern int pre_usb_init(void);
+extern void usb_init(int usb_reg); 
+extern void POWER_CLOCK_IRQHandler(void);
+
+
 
 static void i2c_map(void)
 {
@@ -82,10 +86,18 @@ static void maintask(int n)
 /* reflect button state on power led and drive hacked together  tinyusb stack */
 static void expt(int n)
 {
+    int usbreg = pre_usb_init(); //call to what was tinyusb board_init before it was hacked
+    // init device stack on configured roothub port
+    timer_delay(1);
+    usb_init(usbreg);
+
+
+    timer_delay(1);
+    tud_init(BOARD_TUD_RHPORT);
 
     while (1)
     {
-	timer_delay(40);
+	timer_delay(5);
 //	board_led_write(board_button_read());
         if (gpio_in(BUTTON_A) == 0)
 	{
@@ -98,10 +110,8 @@ static void expt(int n)
 	   led_neo(BLUE);
 	}
 
-#ifdef FORCEON
 	tud_task(); // tinyusb device task
 	cdc_task();
-#endif
     }
 }
 
@@ -163,7 +173,7 @@ void init(void)
 {
     void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
     __asm__ __volatile__("" :: "m" (workaroundlinkage));
-    workaroundlinkage = &usb_init;
+    workaroundlinkage = &POWER_CLOCK_IRQHandler;
 
     serial_init();
     timer_init();
@@ -178,12 +188,7 @@ void init(void)
 
 //leave outside force on so linkage can pick up ISRs
 // call with usb_init() caused HardFault
-#ifdef FORCEON
-    usb_init(); //call to what was tinyusb board_init before it was hacked
-
-    // init device stack on configured roothub port
-    tud_init(BOARD_TUD_RHPORT);
-#endif
+    //just return and do no work in usb_init();
     start("Dual", expt,  0, STACK*4);
     start("Main", maintask, 0, STACK);
 }
