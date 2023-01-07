@@ -1,3 +1,14 @@
+/*
+Based on "PCF8563 Arduino Library V0.2"
+by
+Bill2462 Krzysztof Adamkiewicz
+commit a8873df0cb853346aff47680160c9805399bc6e4 
+
+hasty conversion of C++ to C by search and replace in the most part
+
+for testing of microbian on SeeedStudio nrf52840/samd21 expansion board
+*/
+
 #include "PCF8563.h"
 #include "microbian.h"
 #include "hardware.h"
@@ -9,7 +20,7 @@ void PCF8563__init()
 {
 //  Wire.begin();//initialize the I2C interface
 //will INIT elsewhere probably
-//  i2c_init(EXTERNAL_BLAH);
+//  i2c_init(I2C_EXTERNAL);
 
   PCF8563__write_AND(Control_status_1,~(1<<3));//clear TESTC bit
 //  PCF8563__write_AND(CLKOUT_control,~(1<<7));//clear CLKOUT enable bit 
