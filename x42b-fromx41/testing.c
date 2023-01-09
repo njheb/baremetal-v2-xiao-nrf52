@@ -1,6 +1,8 @@
 /* x3300/level.c */
 /* Copyright (c) 2019 J. M. Spivey */
 
+#define TASKS
+
 #include "microbian.h"
 #include "hardware.h"
 //#include "lib.h"
