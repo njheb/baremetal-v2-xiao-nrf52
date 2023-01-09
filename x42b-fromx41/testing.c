@@ -88,16 +88,21 @@ static void expt(int n)
 {
     int usbreg = pre_usb_init(); //call to what was tinyusb board_init before it was hacked
     // init device stack on configured roothub port
+#ifdef TASKS
     timer_delay(1);
+#endif
     usb_init(usbreg);
 
-
+#ifdef TASKS
     timer_delay(1);
+#endif
     tud_init(BOARD_TUD_RHPORT);
 
     while (1)
     {
+#ifdef TASKS
 	timer_delay(5);
+#endif
 //	board_led_write(board_button_read());
         if (gpio_in(BUTTON_A) == 0)
 	{
@@ -174,10 +179,11 @@ void init(void)
     void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
     __asm__ __volatile__("" :: "m" (workaroundlinkage));
     workaroundlinkage = &POWER_CLOCK_IRQHandler;
-
+#ifdef TASKS
     serial_init();
     timer_init();
     i2c_init(I2C_EXTERNAL);
+#endif
     led_init();
 
     led_neo(WHITE);
@@ -190,5 +196,7 @@ void init(void)
 // call with usb_init() caused HardFault
     //just return and do no work in usb_init();
     start("Dual", expt,  0, STACK*4);
+#ifdef TASKS
     start("Main", maintask, 0, STACK);
+#endif
 }
