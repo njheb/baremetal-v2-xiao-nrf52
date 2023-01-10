@@ -1,0 +1,33 @@
+ls ~/work/xiao/baremetal/tinyusb/hw/bsp/nrf/family.c
+ls ~/work/xiao/baremetal/tinyusb/hw/bsp/board.c
+ls ~/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/drivers/src/nrfx_power.c
+ls ~/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/drivers/src/nrfx_uarte.c
+ls ~/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/mdk/system_nrf52840.c
+ls ~/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/mdk/gcc_startup_nrf52840.S
+ls ~/work/xiao/baremetal/tinyusb/src/portable/nordic/nrf5x/dcd_nrf5x.c
+
+
+ls ~/work/xiao/baremetal/tinyusb/examples/device/cdc_dual_ports/src/usb_descriptors.c
+ls ~/work/xiao/baremetal/tinyusb/examples/device/cdc_dual_ports/src/main.c
+
+
+#merged into tinyusb-lib.a
+#right now using objects built for cdc_dual_ports example
+#rather than finishing tinyusb-lib Makefile yet
+ls ~/work/xiao/baremetal/tinyusb/src/tusb.c
+ls ~/work/xiao/baremetal/tinyusb/src/common/tusb_fifo.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/audio/audio_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/midi/midi_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/dfu/dfu_rt_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/dfu/dfu_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/video/video_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/vendor/vendor_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/net/ecm_rndis_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/net/ncm_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/usbtmc/usbtmc_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/hid/hid_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/cdc/cdc_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/class/msc/msc_device.c
+ls ~/work/xiao/baremetal/tinyusb/src/device/usbd_control.c
+ls ~/work/xiao/baremetal/tinyusb/src/device/usbd.c
+
