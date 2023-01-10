@@ -37,7 +37,7 @@ void tud_runner(int n)
     timer_delay(1);
     tud_init(BOARD_TUD_RHPORT);
 
-    timer_pulse(2); //slow this down if add extra call to tud_task() from idle
+    timer_pulse(100); //slow this down if add extra call to tud_task() from idle
 
     send(USBSERIAL_TASK0, START_CDC, NULL);
 #if (CFG_TUD_CDC > 1) 

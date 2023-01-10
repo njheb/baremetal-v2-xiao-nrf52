@@ -87,10 +87,11 @@ extern int usbserial1_getc(void);
 
         if (count++ % 20 == 0)
 {
-        sprintf(buffer, "%d/%d/20%d %d:%d:%d \n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
-        for (int i=0; buffer[i] != '\0'; i++)
-            usbserial1_putc(buffer[i]);
-//        usbprint1_buf(buffer, 10); //do a strlen later
+        sprintf(buffer, "%d/%d/20%d %d:%d:%d \r\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
+        int i=0;
+        for ( ; buffer[i] != '\0'; i++);
+            //usbserial1_putc(buffer[i]);
+        usbprint1_buf(buffer, i); //do a strlen later
 }
     int k=usbserial1_getc();
     if ( k != -1 )
