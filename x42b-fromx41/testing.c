@@ -2,6 +2,8 @@
 /* Copyright (c) 2019 J. M. Spivey */
 
 #define TASKS
+static int baud = -1;
+
 
 #include "microbian.h"
 #include "hardware.h"
@@ -73,21 +75,25 @@ static void maintask(int n)
     struct PCF8563_Time nT;
 
     while (1) {
-	    led_neo(GREEN);
+	//    led_neo(GREEN);
         timer_delay(500);
 
 	    PCF8563__getTime(&nT);//get current time
 
-	    led_neo(BLUE);
+	//    led_neo(BLUE);
         timer_delay(500);
 
         if (count++ % 10 == 0)
-        printf("%d/%d/20%d %d:%d:%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
+        printf("%d/%d/20%d %d:%d:%d baud=%d\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second, baud);
     }
 }
 /* reflect button state on power led and drive hacked together  tinyusb stack */
+
+
 static void expt(int n)
 {
+    message msg;
+
     int usbreg = pre_usb_init(); //call to what was tinyusb board_init before it was hacked
     // init device stack on configured roothub port
 #ifdef TASKS
@@ -100,21 +106,37 @@ static void expt(int n)
 #endif
     tud_init(BOARD_TUD_RHPORT);
 
+    timer_pulse(2);
+
     while (1)
     {
 #ifdef TASKS
-	timer_delay(5);
+	receive(ANY, &msg);
 #endif
 //	board_led_write(board_button_read());
         if (gpio_in(BUTTON_A) == 0)
 	{
-	   led_pwr_on();
-	   led_neo(GREEN);
+	   //led_pwr_on();
+           cdc_line_coding_t coding;
+           tud_cdc_n_get_line_coding(1, &coding);
+           baud = coding.bit_rate;
+
+           if (baud == 1200)
+           {
+	   	led_neo(GREEN);
+           }
 	}
 	else
 	{
-	   led_pwr_off();
-	   led_neo(BLUE);
+           if (baud == -1)
+	      led_neo(BLUE);
+           else if (baud == 1200)
+              led_neo(GREEN);
+           else
+              led_neo(WHITE); 
+
+	   //led_pwr_off();
+	   //led_neo(colour);
 	}
 
 	tud_task(); // tinyusb device task
@@ -142,6 +164,8 @@ static void echo_serial_port(unsigned char itf, unsigned char buf[], unsigned in
       if (islower(buf[i])) buf[i] -= case_diff;
     }
 */
+    if (buf[i] == '\r')
+       tud_cdc_n_write_char(itf, '\n');
     tud_cdc_n_write_char(itf, buf[i]);
   }
   tud_cdc_n_write_flush(itf);
