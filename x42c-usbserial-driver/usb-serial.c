@@ -86,9 +86,12 @@ void usb_serial(int n)
         receive(ANY, &m);
         client = m.sender;
 
+        tud_task();
+
         switch (m.type) {
+
         case GETC:
-             //m.int1 = -1;
+             m.int1 = -1;
              if (reader >= 0)
                 panic("Two clients cannot wait for input at once");
              reader = client;
@@ -143,15 +146,15 @@ void usbserial0_putc(char ch)
 {
     message m;
     m.int1 = ch;
-    send(USBSERIAL_TASK1, PUTC, &m);
+    send(USBSERIAL_TASK0, PUTC, &m);
 }
 
 /* serial_getc -- request an input character */
 //think about blocking
-char usbserial0_getc(void)
+int usbserial0_getc(void)
 { 
     message m;
-    send(USBSERIAL_TASK1, GETC, NULL);
+    send(USBSERIAL_TASK0, GETC, NULL);
     receive(REPLY, &m);
     return m.int1;
 }
@@ -179,15 +182,15 @@ void usbserial1_putc(char ch)
 
 /* serial_getc -- request an input character */
 //think about blocking
-char usbserial1_getc(void)
+int usbserial1_getc(void)
 {
     message m;
-do {
+//do {
     send(USBSERIAL_TASK1, GETC, NULL);
     receive(REPLY, &m);
-    if (m.int1 == -1)
-       yield();
-}while (m.int1!=-1);
+//    if (m.int1 == -1)
+//       yield();
+//}while (m.int1!=-1);
     return m.int1;
 }
 

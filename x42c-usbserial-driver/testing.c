@@ -75,26 +75,26 @@ static void maintask(int n)
 
     while (1) {
 	//    led_neo(GREEN);
-        timer_delay(500);
+        timer_delay(50);
 
 	    PCF8563__getTime(&nT);//get current time
 
 	//    led_neo(BLUE);
-        timer_delay(500);
+        //timer_delay(50);
 extern void usbprint1_buf(char *buf, int n);
 extern void usbserial1_putc(char ch);
-extern char usbserial1_getc(void);
+extern int usbserial1_getc(void);
 
-        if (count++ % 10 == 0)
+        if (count++ % 20 == 0)
 {
         sprintf(buffer, "%d/%d/20%d %d:%d:%d \n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
         for (int i=0; buffer[i] != '\0'; i++)
             usbserial1_putc(buffer[i]);
 //        usbprint1_buf(buffer, 10); //do a strlen later
 }
-//    int k=usbserial1_getc();
-//    if ( k != (char)(int)-1 )
-//       usbserial1_putc(k);
+    int k=usbserial1_getc();
+    if ( k != -1 )
+       usbserial1_putc((char)k);
     }
 }
 /* reflect button state on power led and drive hacked together  tinyusb stack */
