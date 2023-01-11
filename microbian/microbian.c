@@ -514,11 +514,21 @@ void set_stack(unsigned *sp);
 /* init -- main program, creates application processes */
 void init(void);
 
-#define IDLE_STACK 128
+
+
+extern void tud_task(void);  //call from idle
+//#define IDLE_STACK 128
+#define IDLE_STACK 1024
 
 /* __start -- start the operating system */
 void __start(void)
 {
+   void (*workaroundlinkage2)(void);
+   __asm__ __volatile__("" :: "m" (workaroundlinkage2));
+   workaroundlinkage2 = &tud_task;
+   //update microbian Makefile to include tinyusb-cdc-lib.a
+
+
     /* Create idle task as process 0 */
     idle_proc = create_proc("IDLE", IDLE_STACK);
     idle_proc->state = IDLING;
@@ -533,7 +543,8 @@ void __start(void)
     yield();                    /* Pick a genuine process to run */
 
     /* Idle only runs again when there's nothing to do. */
-    while (1) pause();
+//    while (1) pause();
+    while (1) tud_task(); //experiments with tinyusb
 }
 
 
