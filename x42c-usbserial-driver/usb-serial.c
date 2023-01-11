@@ -2,11 +2,11 @@
 #include "hardware.h"
 #include "tusb.h" //set path ? in Makefile or locally for now
 
-int TUD_TASK = -1;
+int TUD_TASK;
 int USBSERIAL_TASK0;
 int USBSERIAL_TASK1;
 
-#define START_CDC 716253 //random number for now
+#define START_CDC 75 //random number for now
 #define GETC 76
 #define PUTC 77
 #define PUTBUF 78
@@ -18,23 +18,27 @@ extern int pre_usb_init(void);
 extern void usb_init(int usb_reg); 
 extern void POWER_CLOCK_IRQHandler(void);
 
-//D E L A Y S  M A Y  N O T  B E  N E E D E D
+//volatile static int baud = -1;
+//volatile static int duab;
+//static int duab;
+//int duab;
 
-int baud = -1;
+
+void linkme(void)
+{
+   void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
+   __asm__ __volatile__("" :: "m" (workaroundlinkage));
+   workaroundlinkage = &POWER_CLOCK_IRQHandler;
+}
 
 void tud_runner(int n)
 {
-    message msg;
-    void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
-    __asm__ __volatile__("" :: "m" (workaroundlinkage));
-    workaroundlinkage = &POWER_CLOCK_IRQHandler;
+//    message msg; having problems with receive(ANY, &msg); fixed with change to ping
 
     int usbreg = pre_usb_init(); //call to what was tinyusb board_init before i>
     // init device stack on configured roothub port
-//    timer_delay(1);
     usb_init(usbreg);
 
-//    timer_delay(1);
     tud_init(BOARD_TUD_RHPORT);
 
     timer_pulse(20); //slow this down if add extra call to tud_task() from idle
@@ -43,11 +47,14 @@ void tud_runner(int n)
 #if (CFG_TUD_CDC > 1) 
     send(USBSERIAL_TASK1, START_CDC, NULL);
 #endif
-
     while (1)
     {
-        receive(ANY, &msg);
-//      board_led_write(board_button_read());
+
+        //receive(ANY, &msg);
+        receive(PING, NULL);
+        tud_task(); // tinyusb device task
+
+#if 0
         if (gpio_in(BUTTON_A) == 0)
         {
            cdc_line_coding_t coding;
@@ -64,8 +71,8 @@ void tud_runner(int n)
            else
               led_neo(WHITE); 
         }
+#endif
 
-        tud_task(); // tinyusb device task
     }
 }
 
