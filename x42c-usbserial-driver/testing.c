@@ -107,7 +107,8 @@ static void echotask(int n)
 {
     while (1)
     {
-       timer_delay(20);
+//       timer_delay(20);
+       yield();
        int k=usbserial1_getc();
        if ( k != -1 )
        {

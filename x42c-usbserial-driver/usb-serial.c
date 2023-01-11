@@ -1,6 +1,6 @@
 #include "microbian.h"
 #include "hardware.h"
-#include "tusb.h" //set path ? in Makefile or locally for now
+#include "tusb.h"
 
 int TUD_TASK;
 int USBSERIAL_TASK0;
@@ -17,12 +17,6 @@ int USBSERIAL_TASK1;
 extern int pre_usb_init(void);
 extern void usb_init(int usb_reg); 
 extern void POWER_CLOCK_IRQHandler(void);
-
-//volatile static int baud = -1;
-//volatile static int duab;
-//static int duab;
-//int duab;
-
 
 void linkme(void)
 {
@@ -93,10 +87,10 @@ void usb_serial(int n)
         receive(ANY, &m);
         client = m.sender;
 
-        tud_task();
-
+        tud_task(); //seem to need to call tud_task immediately before doing some CDC work
+                    //presumably gets the state m/c inorder
         switch (m.type) {
-
+        //none blocking for the moment, hence int rather than char in wrapper function
         case GETC:
              m.int1 = -1;
              if (reader >= 0)
@@ -122,7 +116,8 @@ void usb_serial(int n)
             tud_cdc_n_write_char(itf, ch);
             tud_cdc_n_write_flush(itf);
             break;
-
+        //just to get going do a raw write
+        //need to think about how printf might select between hw serial and usb serial anyway
         case PUTBUF: //fixme for larger than 64
             buf = m.ptr1;
             n = m.int2;
@@ -192,12 +187,8 @@ void usbserial1_putc(char ch)
 int usbserial1_getc(void)
 {
     message m;
-//do {
     send(USBSERIAL_TASK1, GETC, NULL);
     receive(REPLY, &m);
-//    if (m.int1 == -1)
-//       yield();
-//}while (m.int1!=-1);
     return m.int1;
 }
 
