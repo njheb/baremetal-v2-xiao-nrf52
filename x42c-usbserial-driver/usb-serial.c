@@ -31,13 +31,13 @@ void tud_runner(int n)
 
     int usbreg = pre_usb_init(); //call to what was tinyusb board_init before i>
     // init device stack on configured roothub port
-    timer_delay(1);
+//    timer_delay(1);
     usb_init(usbreg);
 
-    timer_delay(1);
+//    timer_delay(1);
     tud_init(BOARD_TUD_RHPORT);
 
-    timer_pulse(100); //slow this down if add extra call to tud_task() from idle
+    timer_pulse(20); //slow this down if add extra call to tud_task() from idle
 
     send(USBSERIAL_TASK0, START_CDC, NULL);
 #if (CFG_TUD_CDC > 1) 
@@ -207,3 +207,9 @@ void usbprint1_buf(char *buf, int n)
     sendrec(USBSERIAL_TASK1, PUTBUF, &m);
 }
 
+int usb_cdc_dual_init(void)
+{
+    TUD_TASK = start("tud", tud_runner,  0, STACK); //remember to tune stacksize
+    USBSERIAL_TASK0 = start("Port0", usb_serial,  0, STACK);
+    USBSERIAL_TASK1 = start("Port1", usb_serial,  1, STACK);
+}

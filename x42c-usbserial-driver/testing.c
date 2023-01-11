@@ -6,17 +6,24 @@
 #include "lib.h"
 #include "accel.h"
 #include "PCF8563.h"
-#define TASKS
+#include <string.h>
+//#define TASKS
 
 //#include "bsp/board.h"
 //going to need lots of includes so add to Makefile
 //take a look at linker script 
+/*
 extern int TUD_TASK;
 extern int USBSERIAL_TASK0;
 extern int USBSERIAL_TASK1;
 
 extern void tud_runner(int n);
 extern void usb_serial(int n);
+*/
+extern int usb_cdc_dual_init(void);
+extern void usbprint1_buf(char *buf, int n);
+extern void usbserial1_putc(char ch);
+extern int usbserial1_getc(void);
 
 //------------- prototypes -------------//
 //static void cdc_task(void);
@@ -81,24 +88,36 @@ static void maintask(int n)
 
 	//    led_neo(BLUE);
         //timer_delay(50);
-extern void usbprint1_buf(char *buf, int n);
-extern void usbserial1_putc(char ch);
-extern int usbserial1_getc(void);
 
         if (count++ % 20 == 0)
-{
-        sprintf(buffer, "%d/%d/20%d %d:%d:%d \r\n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
-        int i=0;
-        for ( ; buffer[i] != '\0'; i++);
+        {
+           sprintf(buffer, "%d/%d/20%d %d:%d:%d \n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
+           int i=strlen(buffer);//0;
+        //for ( ; buffer[i] != '\0'; i++);
+
             //usbserial1_putc(buffer[i]);
-        usbprint1_buf(buffer, i); //do a strlen later
+           usbprint1_buf(buffer, i); //do a strlen later
+           usbserial1_putc('\r');
+        }
+     }
 }
-    int k=usbserial1_getc();
-    if ( k != -1 )
-       usbserial1_putc((char)k);
+
+//initially non blocking, setting up to test with blocking
+static void echotask(int n)
+{
+    while (1)
+    {
+       timer_delay(20);
+       int k=usbserial1_getc();
+       if ( k != -1 )
+       {
+          if (k == '\r')
+             usbserial1_putc('\n');
+          usbserial1_putc((char)k);
+       }
     }
+
 }
-/* reflect button state on power led and drive hacked together  tinyusb stack */
 
 
 static unsigned char buf[64];
@@ -122,8 +141,13 @@ void init(void)
 //leave outside force on so linkage can pick up ISRs
 // call with usb_init() caused HardFault
     //just return and do no work in usb_init();
+#if 0
     TUD_TASK = start("tud", tud_runner,  0, STACK); //remember to tune stacksize
     USBSERIAL_TASK0 = start("Port0", usb_serial,  0, STACK);
     USBSERIAL_TASK1 = start("Port1", usb_serial,  1, STACK);
+#else
+    usb_cdc_dual_init();
+#endif 
+    start("Echo", echotask, 0, STACK);
     start("Main", maintask, 0, STACK);
 }
