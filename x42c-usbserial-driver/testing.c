@@ -20,7 +20,7 @@ extern int USBSERIAL_TASK1;
 extern void tud_runner(int n);
 extern void usb_serial(int n);
 */
-extern int usb_cdc_dual_init(void);
+extern void usb_cdc_dual_init(void);
 extern void usbprint1_buf(char *buf, int n);
 extern void usbserial1_putc(char ch);
 extern int usbserial1_getc(void);

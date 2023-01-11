@@ -152,7 +152,7 @@ void usbserial0_putc(char ch)
 /* serial_getc -- request an input character */
 //think about blocking
 int usbserial0_getc(void)
-{ 
+{
     message m;
     send(USBSERIAL_TASK0, GETC, NULL);
     receive(REPLY, &m);
@@ -207,7 +207,7 @@ void usbprint1_buf(char *buf, int n)
     sendrec(USBSERIAL_TASK1, PUTBUF, &m);
 }
 
-int usb_cdc_dual_init(void)
+void usb_cdc_dual_init(void)
 {
     TUD_TASK = start("tud", tud_runner,  0, STACK); //remember to tune stacksize
     USBSERIAL_TASK0 = start("Port0", usb_serial,  0, STACK);
