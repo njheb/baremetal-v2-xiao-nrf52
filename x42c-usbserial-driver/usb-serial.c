@@ -18,14 +18,14 @@ extern int pre_usb_init(void);
 extern void usb_init(int usb_reg); 
 extern void POWER_CLOCK_IRQHandler(void);
 
-#if 0
+//gluing the parts together in an extremely nasty way
 void linkme(void)
 {
-   void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
-   __asm__ __volatile__("" :: "m" (workaroundlinkage));
-   workaroundlinkage = &POWER_CLOCK_IRQHandler;
+    void (*workaroundlinkage)(void);
+    __asm__ __volatile__("" :: "m" (workaroundlinkage));
+    workaroundlinkage = &POWER_CLOCK_IRQHandler;
 }
-#endif
+
 void tud_runner(int n)
 {
 //    message msg; having problems with receive(ANY, &msg); fixed with change to ping
@@ -33,6 +33,9 @@ void tud_runner(int n)
     int usbreg = pre_usb_init(); //call to what was tinyusb board_init before i>
     // init device stack on configured roothub port
     usb_init(usbreg);
+
+    //should be able to recombine pre_usb_init() and usb_init() after hardfault 
+    //tracked down to a priority of 2 rather than 0 as it is now
 
     tud_init(BOARD_TUD_RHPORT);
 
@@ -94,7 +97,7 @@ void usb_serial(int n)
         //none blocking for the moment, hence int rather than char in wrapper function
         case GETC:
              m.int1 = -1;
-             if (reader >= 0)
+             if (reader >= 0) //not needed but as a reminder if blocking read gets sorted out
                 panic("Two clients cannot wait for input at once");
              reader = client;
              if ( tud_cdc_n_connected(itf) )
@@ -119,6 +122,7 @@ void usb_serial(int n)
             break;
         //just to get going do a raw write
         //need to think about how printf might select between hw serial and usb serial anyway
+        //maybe add fprintf
         case PUTBUF: //fixme for larger than 64
             buf = m.ptr1;
             n = m.int2;
@@ -153,7 +157,7 @@ void usbserial0_putc(char ch)
 }
 
 /* serial_getc -- request an input character */
-//think about blocking
+//think about blocking, note int not char return type
 int usbserial0_getc(void)
 {
     message m;
