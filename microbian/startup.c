@@ -1,8 +1,6 @@
 /* common/startup.c */
 /* Copyright (c) 2018 J. M. Spivey */
 
-#define TINYUSBEXPT
-
 #include "hardware.h"
 
 /* init -- main program, creates application processes */
