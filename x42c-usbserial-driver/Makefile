@@ -14,6 +14,7 @@ LD = arm-none-eabi-ld
 SIZE = arm-none-eabi-size
 OBJCOPY = arm-none-eabi-objcopy
 
+TINYUSBPATH = ../../tinyusb/examples/device/cdc_XIAO_donor
 
 
 X41LIBMICROBIANLDFLAGS = -L/home/nick/work/xiao/baremetal/tinyusb/hw/mcu/nordic/nrfx/mdk \
@@ -45,7 +46,8 @@ vpath %.h ../microbian
 %.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-%.elf: %.o usb-serial.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
+#%.elf: %.o usb-serial.o PCF8563.o ./tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
+%.elf: %.o PCF8563.o ../microbian/usb-serial.o $(TINYUSBPATH)/tinyusb-cdc-lib.a ../microbian/microbian.a ../microbian/startup.o
 #	$(CC) $(CPU) $(CFLAGS) -T ../microbian/XIAOnRF52840.ld \
 #		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 #	$(CC) $(CPU) $(CFLAGS) -T ./microbian-XIAO-tinyusb-nrf52840_s140_v7.ld \
