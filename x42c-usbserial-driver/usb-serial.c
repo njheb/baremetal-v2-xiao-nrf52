@@ -18,13 +18,14 @@ extern int pre_usb_init(void);
 extern void usb_init(int usb_reg); 
 extern void POWER_CLOCK_IRQHandler(void);
 
+#if 0
 void linkme(void)
 {
    void (*workaroundlinkage)(void); //did not help ; __attribute__((__used__));
    __asm__ __volatile__("" :: "m" (workaroundlinkage));
    workaroundlinkage = &POWER_CLOCK_IRQHandler;
 }
-
+#endif
 void tud_runner(int n)
 {
 //    message msg; having problems with receive(ANY, &msg); fixed with change to ping
