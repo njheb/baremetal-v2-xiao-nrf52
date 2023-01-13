@@ -8,7 +8,7 @@ static int baud = -1;
 #include "microbian.h"
 #include "hardware.h"
 //#include "lib.h"
-#include "accel.h"
+//#include "accel.h"
 #include "PCF8563.h"
 
 //#include "bsp/board.h"
@@ -54,7 +54,7 @@ static void i2c_map(void)
 /* main_task -- show the spirit level */
 static void maintask(int n)
 {
-    int x, y, z;
+//    int x, y, z;
     int count = 0;
 
     printf("Hello\n\n");
