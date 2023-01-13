@@ -14,16 +14,18 @@ int USBSERIAL_TASK1;
 #define BUTTON_A  DEVPIN(0, 3)
 
 
-extern int pre_usb_init(void);
-extern void usb_init(int usb_reg); 
+//extern int pre_usb_init(void);
+//extern void usb_init(int usb_reg); 
+extern void usb_init(void); 
 
 void tud_runner(int n)
 {
 //    message msg; having problems with receive(ANY, &msg); fixed with change to ping
 
-    int usbreg = pre_usb_init(); //call to what was tinyusb board_init before i>
+//FIXED    int usbreg = pre_usb_init(); //call to what was tinyusb board_init before i>
     // init device stack on configured roothub port
-    usb_init(usbreg);
+//FIXED    usb_init(usbreg);
+    usb_init();
 
     //should be able to recombine pre_usb_init() and usb_init() after hardfault 
     //tracked down to a priority of 2 rather than 0 as it is now
