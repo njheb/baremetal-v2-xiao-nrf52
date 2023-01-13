@@ -46,7 +46,6 @@ static void maintask(int n)
 {
    static char buffer[80];
 
-    int x, y, z;
     int count = 0;
 
     printf("Hello\n\n");
