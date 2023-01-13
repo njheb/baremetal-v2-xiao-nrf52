@@ -112,7 +112,10 @@ void receiver_task(int dummy)
     byte buf[RADIO_PACKET];
     int n;
 
-    usbprint1_buf("Hello\n\r", 7);
+    //timer_delay(1000); putting in a timer delay causes crash
+//NEED TO HAVE SYNC for  when serial port is available
+//HW serial port available immediately
+//??    usbprint1_buf("Hello\n\r", 7);
 //    led_neo(WHITE);
 //    display_show(letter_A);
 //    timer_delay(1000);
@@ -123,6 +126,7 @@ void receiver_task(int dummy)
 
 //ASSUME A UBIT is sending
     while (1) {
+        usbprint1_buf("WaitRX\n\r",8);
         n = radio_receive(buf);
         if (n == 1 && buf[0] == '1') {
             usbprint1_buf("Button A\n\r", 10);
@@ -147,24 +151,26 @@ void receiver_task(int dummy)
 void sender_task(int dummy)
 {
     int alternate = 0;
-    gpio_connect(BUTTON_A);
-//    gpio_connect(BUTTON_B);
-    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+//    gpio_connect(BUTTON_A);
+////    gpio_connect(BUTTON_B);
+//    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
 
     while (1) {
         if (gpio_in(BUTTON_A) == 0) {
                alternate++;
            if (alternate & 1)
-               {
+           {
                usbprint1_buf("Press A\n\r", 9);
                radio_send("1", 1);
-                   led_neo(GREEN);
+               usbprint1_buf("Sent A\n\r",8 );
+               led_neo(GREEN);
            }
-               else
-               {
+           else
+           {
               usbprint1_buf("Press B\n\r", 9);
               radio_send("2", 1);
-                  led_neo(BLUE);
+              usbprint1_buf("Sent B\n\r",8 );
+              led_neo(BLUE);
            }
             //radio_send("2", 1); might try randomly sending "1" or "2" as only>
         }
