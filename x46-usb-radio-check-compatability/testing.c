@@ -9,6 +9,9 @@
 
 //------------- prototypes -------------//
 extern void usb_cdc_dual_init(void);
+extern void usbprint0_buf(char *buf, int n);
+extern void usbserial0_putc(char ch);
+extern int usbserial0_getc(void);
 extern void usbprint1_buf(char *buf, int n);
 extern void usbserial1_putc(char ch);
 extern int usbserial1_getc(void);
@@ -71,8 +74,8 @@ static void maintask(int n)
         //timer_delay(50);
         receive(PING, NULL);
 
-        if (count%20 == 10) led_neo(GREEN);
-        if (count%20 == 0)  led_neo(BLUE);
+//        if (count%20 == 10) led_neo(GREEN);
+//        if (count%20 == 0)  led_neo(BLUE);
 
         if (count++ % 20 == 0)
         {
@@ -80,8 +83,8 @@ static void maintask(int n)
 
            sprintf(buffer, "%d/%d/20%d %d:%d:%d \n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
            int i=strlen(buffer);
-           usbprint1_buf(buffer, i); //for now this is a raw write
-           usbserial1_putc('\r');
+           usbprint0_buf(buffer, i); //for now this is a raw write
+           usbserial0_putc('\r');
         }
      }
 }
@@ -92,21 +95,94 @@ static void echotask(int n)
     while (1)
     {
        yield();
-       int k=usbserial1_getc();
+       int k=usbserial0_getc();
        if ( k != -1 )
        {
           if (k == '\r')
-             usbserial1_putc('\n');
-          usbserial1_putc((char)k);
+             usbserial0_putc('\n');
+          usbserial0_putc((char)k);
        }
     }
 
 }
 
+void receiver_task(int dummy)
+{
+    static char errbuf[80];
+    byte buf[RADIO_PACKET];
+    int n;
+
+    usbprint1_buf("Hello\n\r", 7);
+//    led_neo(WHITE);
+//    display_show(letter_A);
+//    timer_delay(1000);
+//    display_show(letter_B);
+//    timer_delay(1000);
+//    display_show(blank);
+    
+
+//ASSUME A UBIT is sending
+    while (1) {
+        n = radio_receive(buf);
+        if (n == 1 && buf[0] == '1') {
+            usbprint1_buf("Button A\n\r", 10);
+
+            //SET USER YELLOW
+            led_neo(YELLOW);
+//          display_show(letter_A);
+        } else if (n == 1 && buf[0] == '2') {
+            usbprint1_buf("Button B\n\r", 10);
+            //SET USER MAGENTA
+            led_neo(MAGENTA);
+//          display_show(letter_B);
+        } else {
+            //SET USER RED
+            led_neo(RED);
+            sprintf(errbuf, "Unknown packet, length %d: %d\n", n, buf[0]);
+            usbprint1_buf(errbuf, strlen(errbuf));
+        }
+    }
+}
+
+void sender_task(int dummy)
+{
+    int alternate = 0;
+    gpio_connect(BUTTON_A);
+//    gpio_connect(BUTTON_B);
+    gpio_pull(BUTTON_A, GPIO_PULL_Pullup);
+
+    while (1) {
+        if (gpio_in(BUTTON_A) == 0) {
+               alternate++;
+           if (alternate & 1)
+               {
+               usbprint1_buf("Press A\n\r", 9);
+               radio_send("1", 1);
+                   led_neo(GREEN);
+           }
+               else
+               {
+              usbprint1_buf("Press B\n\r", 9);
+              radio_send("2", 1);
+                  led_neo(BLUE);
+           }
+            //radio_send("2", 1); might try randomly sending "1" or "2" as only>
+        }
+
+        timer_delay(100);
+    }
+}
+
+#define GROUP 17
+
 void init(void)
 {
     serial_init();
     timer_init();
+
+    radio_init();
+    radio_group(GROUP);
+
     i2c_init(I2C_EXTERNAL);
     led_init();
 
@@ -121,4 +197,7 @@ void init(void)
 
     start("Echo", echotask, 0, STACK);
     start("Main", maintask, 0, STACK);
+    start("Receiver", receiver_task, 0, STACK);
+    start("Sender", sender_task, 0, STACK);
+
 }
