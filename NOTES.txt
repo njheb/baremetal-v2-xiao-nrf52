@@ -74,3 +74,10 @@ We are only using it for the tools chain.
 Re-work env.sh to suit your needs if you've gone the arduino toolchain route.
 
 Right now my microbian port is a bit untity but it works. It's untidier than it should be because of getting tinyusb-cdc-lib.a going.
+
+
+NOTICED THAT COLD PLUG OF USB WITH USB STACK on x46 but also x42c lead to a 
+crash on startup so need to investigate. Is OK with a reset once plugged in.
+So rationalised usb projects too soon, need to go back and cherry-pick and look 
+for crash.
+Built x44-oled again at this level as it has no USB code and it cold boots ok. 
