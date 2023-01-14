@@ -109,6 +109,8 @@ static void echotask(int n)
 void receiver_task(int dummy)
 {
     static char errbuf[80];
+    static int pos = 0;
+    static byte visualise = 0;
     byte buf[RADIO_PACKET];
     int n;
 
@@ -129,22 +131,35 @@ void receiver_task(int dummy)
         usbprint1_buf("WaitRX\n\r",8);
         n = radio_receive(buf);
         if (n == 1 && buf[0] == '1') {
+            usbserial1_putc('0'+(visualise&7));
             usbprint1_buf("Button A\n\r", 10);
 
             //SET USER YELLOW
             led_neo(YELLOW);
 //          display_show(letter_A);
         } else if (n == 1 && buf[0] == '2') {
+            usbserial1_putc('0'+(visualise&7));
             usbprint1_buf("Button B\n\r", 10);
             //SET USER MAGENTA
             led_neo(MAGENTA);
 //          display_show(letter_B);
+        } else if (n == 1 && buf[0] >= 'a' && buf[0] <= 'z') {
+            usbserial1_putc(buf[0]);
+            if (pos++ == 26)
+            {
+               pos = 0;
+               usbprint1_buf("\n\r", 2);
+            }
+            //SET USER MAGENTA
+            led_neo(CYAN);
         } else {
             //SET USER RED
             led_neo(RED);
             sprintf(errbuf, "Unknown packet, length %d: %d\n", n, buf[0]);
             usbprint1_buf(errbuf, strlen(errbuf));
         }
+
+        visualise++;
     }
 }
 
