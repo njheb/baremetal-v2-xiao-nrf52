@@ -38,5 +38,9 @@ echo "**** TYPE: git -C "$TOP"/tinyusb submodule update --init lib/CMSIS_5 hw/mc
 echo "****"
 echo "**** from cdc_XIAO_donor 'make tinyusb-cdc-lib' if building from source"
 echo "*******************************************************************************"
+echo "HAVE TO SORT OUT... LINKAGE LTO VERSION CAUSED A PROBLEM SO FOR NOW HAVE TO DO BIG DOWNLOAD"
+git -C "$TOP"/tinyusb submodule update --init lib/CMSIS_5 hw/mcu/nordic/nrfx
+
 popd
-cp tinyusb-cdc-lib.a ../../tinyusb/examples/device/cdc_XIAO_donor
+#cp tinyusb-cdc-lib.a ../../tinyusb/examples/device/cdc_XIAO_donor
+#
