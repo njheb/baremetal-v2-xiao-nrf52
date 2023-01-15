@@ -15,6 +15,9 @@ which can be bought with headers pre-soldered.
 It lacks a reset button so the expansion board is pretty much required 
 although pads are exposed for shorting reset in place of a button.
 
+I thought it was of interest because of my unfinished Adafruit trinket USB 
+microbian port which could benefit from a better approach to adding cdc.
+
 Project folders I remember touching or have started.
 ====================================================
 
@@ -48,7 +51,8 @@ IMU (Sense)
 Probably never:
 SOFTDEVICE would require usb priority going back down from 0 to 2 and
 adding semaphore primitive to support that if i've understood things correctly.
-Getting away with -DCFG_TUSB_OS=OPT_OS_NONE and using priority 0 for USB.
+I'm getting away with -DCFG_TUSB_OS=OPT_OS_NONE and using NVIC priority 0 
+for USB.
 
 Programming
 ===========
@@ -70,11 +74,11 @@ type the keyword "seeed nrf52" in the search box,
 select the latest version of the board you want, and install it. 
 You can install both. The mbed one is much more mature.
 
-We are only using it for the tools chain. 
-Re-work env.sh to suit your needs if you've gone the arduino toolchain route.
+Used Seeed arduino ide and board package for hints and the tools chain. 
 
-Right now my microbian port is a bit untity but it works. It's untidier than it should be because of getting tinyusb-cdc-lib.a going.
-
+Right now my microbian port is a bit untity but it works. 
+It's untidier than it should be because of getting tinyusb-cdc-lib.a going, 
+but not polished.
 
 NOTICED THAT COLD PLUG OF USB WITH USB STACK on x46 but also x42c lead to a 
 crash on startup so need to investigate. Is OK with a reset once plugged in.
