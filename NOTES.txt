@@ -1,6 +1,8 @@
 Microbian port to XIAO nRF52840 with tinyusb cdc
 ================================================
 
+BRANCH: xiao-nrf52-tinyusb-cdc
+
 I've been working on the cheaper Seeed Studio XIAO nRF52840 without 
 IMU and mic. The expansion board has SWD and an easier to use reset button.
 
