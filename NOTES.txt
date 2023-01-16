@@ -3,6 +3,13 @@ Microbian port to XIAO nRF52840 with tinyusb cdc
 
 BRANCH: xiao-nrf52-tinyusb-cdc
 
+install tinyusb repo and patches with:
+ 
+cd baremetal/baremetal-v2-xiao-nrf52/setup-tinyusb/
+install-tinyusb-cdc-lib.a.sh
+
+tinyusb will be parallel with baremetal-v2-xiao-nrf2
+
 I've been working on the cheaper Seeed Studio XIAO nRF52840 without 
 IMU and mic. The expansion board has SWD and an easier to use reset button.
 
@@ -87,3 +94,9 @@ crash on startup so need to investigate. Is OK with a reset once plugged in.
 So rationalised usb projects too soon, need to go back and cherry-pick and look 
 for crash.
 Built x44-oled again at this level as it has no USB code and it cold boots ok. 
+Brought back x41 and modernised, tests OK.
+
+Post investigation, fixed crash, but fix causes occasional stall of minicom 
+on /dev/ttyACM1 close, was not an issue pre fix as far as I remember. 
+Just indicates that I have to learn the tinyusb API properly.
+
