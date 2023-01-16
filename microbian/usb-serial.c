@@ -108,10 +108,19 @@ void usb_serial(int n)
             ch = m.int1;
             //if (!tud_cdc_n_write_available(itf))
             //  tud_cdc_n_write_flush(itf);
+
             if (ch == '\n')
+            {
+               tud_cdc_n_write_flush(itf);
                tud_cdc_n_write_char(itf, '\r');
-            tud_cdc_n_write_char(itf, ch);
-            tud_cdc_n_write_flush(itf);
+               tud_cdc_n_write_flush(itf);
+            }
+	    else
+            {
+               tud_cdc_n_write_flush(itf);
+               tud_cdc_n_write_char(itf, ch);
+               tud_cdc_n_write_flush(itf);
+            }
             break;
         //just to get going do a raw write
         //need to think about how printf might select between hw serial and usb serial anyway

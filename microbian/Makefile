@@ -43,4 +43,4 @@ force:
 
 ###
 
-$(MICROBIAN) startup.o: microbian.h hardware.h lib.h
+$(MICROBIAN) startup.o usb-startuo.o: microbian.h hardware.h lib.h

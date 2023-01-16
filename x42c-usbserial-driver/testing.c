@@ -12,6 +12,9 @@ extern void usb_cdc_dual_init(void);
 extern void usbprint1_buf(char *buf, int n);
 extern void usbserial1_putc(char ch);
 extern int usbserial1_getc(void);
+extern void usbprint0_buf(char *buf, int n);
+extern void usbserial0_putc(char ch);
+extern int usbserial0_getc(void);
 
 #define BUTTON_A  DEVPIN(0, 3)
 
@@ -80,25 +83,36 @@ static void maintask(int n)
 
            sprintf(buffer, "%d/%d/20%d %d:%d:%d \n", nT.day, nT.month, nT.year, nT.hour, nT.minute, nT.second);
            int i=strlen(buffer);
-           usbprint1_buf(buffer, i); //for now this is a raw write
-           usbserial1_putc('\r');
-        }
+         usbprint1_buf(buffer, i); //for now this is a raw write
+         usbserial1_putc('\r');
+       }
      }
 }
 
 //initially non blocking rx
 static void echotask(int n)
 {
+
+    //looking to overcome crash after upload since on
+    // /dev/ttyACM0 which is also the DFU links name
+    // talking via usbserial0_*() causes crash post upload
+    // but now OK on subsequent cold plugs of usb
+
     while (1)
     {
        yield();
+
        int k=usbserial1_getc();
+//       int k=usbserial0_getc();
        if ( k != -1 )
        {
           if (k == '\r')
+//             usbserial0_putc('\n');
              usbserial1_putc('\n');
+//          usbserial0_putc((char)k);
           usbserial1_putc((char)k);
        }
+
     }
 
 }
@@ -118,6 +132,10 @@ void init(void)
     usb_cdc_dual_init(); // handy to have minicom -D /dev/ttyACM1 to talk to
                          // as 'make upload' talks on /dev/ttyACM0
                          // saves having to stop and start minicom
+
+    //be aware if too quick after a xiao reset linux may produce different
+    // /dev/ttyACM<n> can also explain why DFU refuses upload to assumed
+    // default of /dev/ttyACM0
 
     start("Echo", echotask, 0, STACK);
     start("Main", maintask, 0, STACK);
