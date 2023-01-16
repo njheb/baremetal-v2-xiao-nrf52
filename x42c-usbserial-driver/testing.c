@@ -97,20 +97,20 @@ static void echotask(int n)
     // /dev/ttyACM0 which is also the DFU links name
     // talking via usbserial0_*() causes crash post upload
     // but now OK on subsequent cold plugs of usb
+    int likley_post_dfu_connect = !tud_cdc_n_available(0);
+    if (likley_post_dfu_connect)
+       timer_delay(5000);
 
     while (1)
     {
        yield();
 
-       int k=usbserial1_getc();
-//       int k=usbserial0_getc();
+       int k=usbserial0_getc();
        if ( k != -1 )
        {
           if (k == '\r')
-//             usbserial0_putc('\n');
-             usbserial1_putc('\n');
-//          usbserial0_putc((char)k);
-          usbserial1_putc((char)k);
+             usbserial0_putc('\n');
+          usbserial0_putc((char)k);
        }
 
     }
