@@ -1,17 +1,7 @@
-# <u>Microbian port to XIAO nRF52840 with tinyusb cdc</u>
+# <u>Microbian port to XIAO nRF52840</u>
 **For founding material look at original.README.md**
 
-#install tinyusb repo and patches with:
-
-"cd baremetal/baremetal-v2-xiao-nrf52/setup-tinyusb/"
-
-"./install-tinyusb-cdc-lib.a.sh"
-
-"../../tinyusb/examples/device/cdc_XIAO_donor/make tinyusb-cdc-lib"
-
-tinyusb will be parallel with baremetal-v2-xiao-nrf2
-
-#Hardware
+# Hardware
 
 I've been working on the cheaper Seeed Studio XIAO nRF52840 without 
 IMU and mic. The expansion board has SWD and an easier to use reset button.
@@ -59,7 +49,9 @@ And could provide a route for adding Seeed SAMD21 to microbian.*
 
 
 # TODO:
-tinyusb-cdc-lib.a needs a clean
+Finish and clean tinyusb-cdc-lib.a. While it it possible to get away with the no RTOS model most of
+the time for experimentation it looks like semaphores will need to be implemented. Which goes against
+the spirit of microbian. But I may get around to adding it as a compile option.
 
 Would blocking usbserial rx be desirable? Currently returns (int)-1 
 for not available. Would fprintf be a good idea?
@@ -68,26 +60,26 @@ investigate radio - have not read datasheet for differences if any from UBITv2
 
 Drivers to make:
 
-PWM
+ * PWM
 
-SPIM on SPI2
+ * SPIM on SPI2
 
-SPIM on SPI2 with DMA
+ * SPIM on SPI2 with DMA
 
-QSPI with DMA
+ * QSPI with DMA
 
-microphone (Sense)
+ * microphone (Sense)
 
-IMU (Sense)
+ * IMU (Sense)
 
 
 **Probably never:**
 SOFTDEVICE would require usb priority going back down from 0 to 2 and
 adding semaphore primitive to support that if i've understood things correctly.
 I'm getting away with -DCFG_TUSB_OS=OPT_OS_NONE and using NVIC priority 0 
-for USB.
+for USB for early experiments. But it's not robust enough.
 
-#<u>Programming</u>
+# <u>Programming</u>
 
 
 I've not tried the UF2 interface.
@@ -121,3 +113,14 @@ but not polished in anyway it's just proof of concept.
 
 I have yet to learn the tinyusb API properly.
 
+*If you want tinyusb-cdc-lib.a do the install below. It is however unfinished.*
+
+# install tinyusb repo and patches with:
+
+"cd baremetal/baremetal-v2-xiao-nrf52/setup-tinyusb/"
+
+"./install-tinyusb-cdc-lib.a.sh"
+
+"../../tinyusb/examples/device/cdc_XIAO_donor/make tinyusb-cdc-lib"
+
+tinyusb will be parallel with baremetal-v2-xiao-nrf2
